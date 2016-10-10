@@ -1,0 +1,39 @@
+{
+  "name": "weex-vue-migration",
+  "version": "0.1.0",
+  "description": "migration from *.we file to *.vue file",
+  "main": "index.js",
+  "author": "songsiqi <songsiqi2006@126.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/weexteam/weex-vue-migration.git"
+  },
+  "license": "GPL-3.0",
+  "keywords": [
+    "weex",
+    "vue"
+  ],
+  "scripts": {
+    "prepare": "npm run clear && npm run lint && npm run build",
+    "pretest": "npm run prepare",
+    "prepublish": "npm run prepare",
+    "build": "buble -i src -o lib",
+    "dev": "gazeer -p \"src/**/*.js\" -c \"npm run lint && npm run build\"",
+    "lint": "eslint src test",
+    "lint:fix": "eslint --fix src test",
+    "test": "mocha",
+    "test:dev": "mocha -w",
+    "clear": "rm -Rf lib/*"
+  },
+  "dependencies": {
+    "parse5": "~2.2.0"
+  },
+  "devDependencies": {
+    "buble": "^0.13.2",
+    "chai": "^3.5.0",
+    "eslint": "^3.5.0",
+    "gazeer": "^0.1.1",
+    "mocha": "^3.0.2",
+    "isparta": "~4.0.0"
+  }
+}
