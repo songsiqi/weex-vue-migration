@@ -30,6 +30,7 @@ props: {
 3、
 Weex:
 require('weex-components')
+标签deps隐式依赖
 Vue: // 通过 components 字段显性定义
 components: {
   item: require('weex-vue-components/list-item.vue'),
@@ -63,3 +64,6 @@ Weex:
 <element></element>
 Vue:
 转换成新的.vue文件？
+Vue.component()
+
+8、所有js代码的ES6代码转换问题

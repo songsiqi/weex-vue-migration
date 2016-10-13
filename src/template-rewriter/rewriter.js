@@ -191,7 +191,7 @@ function rewriteIf (attrs, i) {
 function rewriteElse (attrs, i) {
   const newAttr = {
     name: 'v-else',
-    value: '' // FIXME: 转出来是v-else=""
+    value: '' // FIXME: result it `v-else=""`
   }
   attrs.splice(i, 1, newAttr)
 }
@@ -212,7 +212,17 @@ function rewriteRepeat (attrs, i) {
   if (exp.isExpr(value)) {
     value = value.slice(2, -2)
   }
-  if (!value.match(/(.*) (?:in) (.*)/)) { // FIXME: 必须写key, value，先这么写
+  const inMatch = value.match(/(.*) (?:in) (.*)/)
+  if (inMatch) {
+    const itMatch = inMatch[1].match(/\((.*),(.*)\)/)
+    if (itMatch) { // reverse value and key
+      const key = itMatch[1].trim()
+      const val = itMatch[2].trim()
+      const list = inMatch[2].trim()
+      value = `(${val}, ${key}) in ${list}`
+    }
+  }
+  else { // FIXME: must have `value`
     value = `$value in ${value}`
   }
   const newAttr = {

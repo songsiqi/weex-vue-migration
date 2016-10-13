@@ -98,7 +98,7 @@ describe('template', () => {
           <div v-for="$value in items"></div>
           <div v-for="item in items"></div>
           <div v-for="item in items"></div>
-          <div v-for="(key, val) in items"></div>
+          <div v-for="(val, key) in items"></div>
         </div>`
     assertDomString(fixture, expected)
   })
