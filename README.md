@@ -6,6 +6,11 @@ https://github.com/weexteam/weex-vue-framework/issues/9
 
 https://github.com/weexteam/weex-vue-framework/issues/4
 
+babel插件编写：
+
+* http://babeljs.io/docs/usage/api/
+* https://github.com/thejameskyle/babel-handbook/blob/master/translations/zh-Hans/README.md
+
 ## TODO
 
 1、
@@ -17,6 +22,18 @@ Vue: // 自定义组件的原生事件
 
 2、
 Weex:
+this.$el('xxx')
+Vue:
+this.$refs.xxx
+this.$refs['xxx']
+的几种特殊情况：
+const $el = this.$el
+$el('xxx')
+const $ = this.$el
+const self = this
+
+3、
+Weex:
 data: {
   level: 1,
   value: ''
@@ -26,8 +43,9 @@ props: {
   level: { default: 1 },
   value: { default: '' }
 }
+data是function的情况，return之前有其他语句
 
-3、
+4、
 Weex:
 require('weex-components')
 标签deps隐式依赖
@@ -39,18 +57,11 @@ components: {
   hn: require('weex-vue-components/hn.vue')
 }
 
-4、
+5、
 Weex:
 $dispatch()/$broadcast()
 Vue: // 不能完全等价迁移，部分场景需要手工调整
 $emit()
-
-5、
-Weex:
-this.$el('xxx')
-Vue:
-this.$refs.xxx
-this.$refs['xxx']
 
 6、
 Weex:
