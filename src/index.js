@@ -1,5 +1,6 @@
 const parse5 = require('parse5')
 const templateRewriter = require('./template-rewriter')
+const scriptRewriter = require('./script-rewriter')
 
 /**
  * Parse weex file into blocks
@@ -62,10 +63,22 @@ function transform (weexCode) {
     locationInfo: true
   }
   const doc = parse5.parseFragment(weexCode, options)
-  const { template } = block(doc)
+  const { template, scripts } = block(doc)
 
   if (template) {
     templateRewriter.rewrite(template.content)
+  }
+
+  if (scripts) {
+    scripts.forEach((script) => {
+      if (script.childNodes) {
+        script.childNodes.forEach((child) => {
+          if (child.nodeName === '#text') {
+            child.value = scriptRewriter.rewrite(child.value)
+          }
+        })
+      }
+    })
   }
 
   const vueCode = parse5.serialize(doc)
