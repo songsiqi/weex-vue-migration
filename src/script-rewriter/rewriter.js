@@ -1,4 +1,5 @@
 const t = require('babel-types')
+const template = require('babel-template')
 
 /**
  * Rewrite `$el` to `$refs`
@@ -35,71 +36,123 @@ function rewriteEl (path) {
 }
 
 /**
- * Rewrite `data` to `props`
- *  TODO: deal with statements before `return` in data function
- *
- * Weex:
- *  module.exports = {
- *    data: {
- *      level: 1,
- *      value: ''
- *    }
- *  }
- *  module.exports = {
- *    data: function () {
- *      return {
- *        level: 1,
- *        value: ''
- *      }
- *    }
- *  }
- *  module.exports = {
- *    data() {
- *      return {
- *        level: 1,
- *        value: ''
- *      }
- *    }
- *  }
- * Vue:
- *  module.exports = {
- *    props: {
- *      level: { default: 1 },
- *      value: { default: '' }
- *    }
- *  }
- *
- *  So does `export default`
+ * Rewrite weex instance options
  *
  * @param {Node} path of `AssignmentExpression` or `ExportDefaultDeclaration`
+ * @param {String} `<script type="data">` dataConfig
  */
-function rewriteData (path) {
+function rewriteOptions (path, dataConfig) {
   const { node } = path
 
-  // `data` in `module.exports`
+  // options in `module.exports`
   if (node.type === 'AssignmentExpression' &&
     node.operator === '=' &&
     node.left.object.name === 'module' &&
     node.left.property.name === 'exports' &&
     node.right.type === 'ObjectExpression'
   ) {
-    locateData(node.right.properties)
+    rewriteData(node.right.properties, dataConfig)
   }
 
-  // `data` in `export default`
+  // options in `export default`
   else if (node.type === 'ExportDefaultDeclaration' &&
     node.declaration.type === 'ObjectExpression'
   ) {
-    locateData(node.declaration.properties)
+    rewriteData(node.declaration.properties, dataConfig)
   }
 }
 
 /**
- * Locate and rewrite `data` property
+ * Rewrite `data`
+ *  - Rewrite `data` to `props`
+ *  - Rewrite `<script type="data">` to `data`
  *
- * @param {Node} properties
+ * @param {Node} path of `AssignmentExpression` or `ExportDefaultDeclaration`
+ * @param {String} `<script type="data">` dataConfig
  */
-function locateData (properties) {
+function rewriteData (properties, dataConfig) {
+  rewriteDataToProps(properties)
+  if (dataConfig) {
+    rewriteDataConfig(properties, dataConfig)
+  }
+}
+
+/**
+ * Rewrite `<script type="data">` to `data`
+ *
+ * Weex:
+ *  <script type="data">
+ *    { a: 1 }
+ *  </script>
+ * Vue:
+ *  module.exports = {
+ *    data: function () {
+ *      return {
+ *        a: 1
+ *      }
+ *    }
+ *  }
+ *
+ * @param {Array} properties
+ * @param {String} `<script type="data">` dataConfig
+ */
+function rewriteDataConfig (properties, dataConfig) {
+  const buildData = template(`
+    function data () { return ${dataConfig}; }
+  `)
+  const dataFucAst = buildData()
+  dataFucAst.type = 'FunctionExpression'
+  dataFucAst.id = null
+  const dataAst = {
+    type: 'ObjectProperty',
+    method: false,
+    shorthand: false,
+    computed: false,
+    key: {
+      type: 'Identifier',
+      name: 'data'
+    },
+    value: dataFucAst
+  }
+  properties.unshift(dataAst)
+}
+
+/**
+ * Rewrite `data` to `props`
+ *  TODO: deal with statements before `return` in data function
+ *
+ * Weex:
+ *  module.exports = {
+ *    data: {
+ *      level: 1
+ *    }
+ *  }
+ *  module.exports = {
+ *    data: function () {
+ *      return {
+ *        level: 1
+ *      }
+ *    }
+ *  }
+ *  module.exports = {
+ *    data() {
+ *      return {
+ *        level: 1
+ *      }
+ *    }
+ *  }
+ * Vue:
+ *  module.exports = {
+ *    props: {
+ *      level: { default: 1 }
+ *    }
+ *  }
+ *
+ *  So does `export default`
+ *
+ * @param {Array} properties
+ */
+function rewriteDataToProps (properties) {
   properties.forEach((property) => {
     if (property.type === 'ObjectProperty' &&
       property.key.name === 'data'
@@ -189,5 +242,5 @@ function rewriteDataNode (property, data) {
 
 module.exports = {
   rewriteEl,
-  rewriteData
+  rewriteOptions
 }

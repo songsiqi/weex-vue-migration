@@ -5,8 +5,9 @@ const rewriter = require('./rewriter')
  * Rewrite `<template>`
  *
  * @param {Node|String} node
+ * @param {Array} deps
  */
-function rewrite (node) {
+function rewrite (node, deps) {
   if (typeof node === 'string') {
     const options = {
       treeAdapter: parse5.treeAdapters.default,
@@ -15,7 +16,9 @@ function rewrite (node) {
     node = parse5.parseFragment(node, options)
   }
 
-  switch (node.nodeName) {
+  const { nodeName } = node
+
+  switch (nodeName) {
     case 'content':
       rewriter.rewriteContentTag(node)
       break
@@ -24,6 +27,10 @@ function rewrite (node) {
       break
     default:
       break
+  }
+
+  if (nodeName[0] !== '#' && deps.indexOf(nodeName) === -1) {
+    deps.push(nodeName)
   }
 
   const attrs = node.attrs || []
@@ -61,7 +68,7 @@ function rewrite (node) {
 
   const childNodes = node.childNodes || []
   childNodes.forEach((child) => {
-    rewrite(child)
+    rewrite(child, deps)
   })
 
   return node

@@ -1,18 +1,27 @@
 <template>
-  <container>
-    <container repeat="item in itemList" onclick="gotoDetail(item.itemId, $event)">
+  <div>
+    <div>
+      <text>{{title}}</text>
+    </div>
+    <div repeat="item in itemList" onclick="gotoDetail(item.itemId, $event)">
       <image class="thumb" src="{{item.pictureUrl}}"></image>
       <text class="title">
         {{item.title}}
       </text>
-    </container>
-  </container>
+    </div>
+  </div>
 </template>
 
 <style>
   .thumb {width: 200; height: 200;}
   .title {flex: 1; color: #ff0000; font-size: 48; font-weight: bold; background-color: #eeeeee;}
 </style>
+
+<script type="data">
+  {
+    title: '宝贝列表'
+  }
+</script>
 
 <script>
   module.exports = {

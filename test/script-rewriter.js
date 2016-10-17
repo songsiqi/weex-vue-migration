@@ -2,8 +2,8 @@ const scriptRewriter = require('../lib/script-rewriter')
 const chai = require('chai')
 const expect = chai.expect
 
-function assertEqual (fixture, expected) {
-  const result = scriptRewriter.rewrite(fixture)
+function assertEqual (fixture, expected, dataConfig) {
+  const result = scriptRewriter.rewrite(fixture, dataConfig)
   expect(result).eql(expected)
 }
 
@@ -96,5 +96,35 @@ export default {
     const fixture = `const a = self.$el('xxx');`
     const expected = `const a = self.$refs['xxx'];`
     assertEqual(fixture, expected)
+  })
+
+  it('rewrite `<script type="data">` to `data`', () => {
+    const fixture = `
+module.exports = {
+  data() {
+    return {
+      dataInData: 1
+    }
+  }
+};`
+    const dataConfig = '{ a: 1, b: { c: 1 } }'
+    const expected = `
+module.exports = {
+  data: function () {
+    return {
+      a: 1,
+      b: {
+        c: 1
+      }
+    };
+  },
+
+  props: {
+    dataInData: {
+      default: 1
+    }
+  }
+};`
+    assertEqual(fixture, expected, dataConfig)
   })
 })

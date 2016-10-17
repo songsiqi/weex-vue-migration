@@ -10,8 +10,10 @@ const scriptRewriter = require('./script-rewriter')
  */
 function block (doc) {
   const result = {}
+  const { childNodes } = doc
 
-  doc.childNodes.forEach((child) => {
+  for (let i = 0; i < childNodes.length; i++) {
+    const child = childNodes[i]
     switch (child.nodeName) {
       case 'template':
         result.template = result.template || child
@@ -30,6 +32,10 @@ function block (doc) {
         })
         if (type) {
           result[type] = result[type] || child
+          if (type === 'data') { // delete `<script type="data">`
+            childNodes.splice(i, 1)
+            i--
+          }
         }
         else {
           result.scripts = result.scripts || []
@@ -46,7 +52,7 @@ function block (doc) {
       default:
         break
     }
-  })
+  }
 
   return result
 }
@@ -63,10 +69,22 @@ function transform (weexCode) {
     locationInfo: true
   }
   const doc = parse5.parseFragment(weexCode, options)
-  const { template, scripts } = block(doc)
+  const { template, scripts, data } = block(doc)
 
+  const deps = []
   if (template) {
-    templateRewriter.rewrite(template.content)
+    templateRewriter.rewrite(template.content, deps)
+  }
+
+  let dataConfig = ''
+  if (data && data.childNodes) {
+    data.childNodes.forEach((child) => {
+      if (child.nodeName === '#text') {
+        dataConfig += child.value
+      }
+    })
+    dataConfig = new Function('return ' + dataConfig.replace(/\n/g, ''))()
+    dataConfig = JSON.stringify(dataConfig)
   }
 
   if (scripts) {
@@ -74,7 +92,7 @@ function transform (weexCode) {
       if (script.childNodes) {
         script.childNodes.forEach((child) => {
           if (child.nodeName === '#text') {
-            child.value = scriptRewriter.rewrite(child.value)
+            child.value = scriptRewriter.rewrite(child.value, dataConfig)
           }
         })
       }

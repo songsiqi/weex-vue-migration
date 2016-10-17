@@ -26,7 +26,7 @@ this.$el('xxx')
 Vue:
 this.$refs.xxx
 this.$refs['xxx']
-的几种特殊情况：
+几种特殊情况：
 const $el = this.$el
 $el('xxx')
 const $ = this.$el
@@ -68,7 +68,7 @@ Weex:
 <script type="data"></script>
 <script type="config"></script>
 Vue:
-data 有机会转成 root 组件的 data option，config 在 vue 里暂时没有实际意义，可以忽略先
+data 转成 root 组件的 data option，config 在 vue 里暂时没有实际意义，可以忽略先
 
 7、
 Weex:

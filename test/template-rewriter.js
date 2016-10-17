@@ -4,7 +4,7 @@ const chai = require('chai')
 const expect = chai.expect
 
 function assertDomString (fixture, expected) {
-  const node = templateRewriter.rewrite(fixture)
+  const node = templateRewriter.rewrite(fixture, [])
   expect(parse5.serialize(node)).eql(expected)
 }
 

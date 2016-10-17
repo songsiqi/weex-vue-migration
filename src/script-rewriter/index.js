@@ -1,21 +1,31 @@
 const babel = require('babel-core')
 const rewriter = require('./rewriter')
 
+let dataConfig
+
 const visitor = {
   CallExpression (path) {
     rewriter.rewriteEl(path)
   },
 
   AssignmentExpression (path) {
-    rewriter.rewriteData(path)
+    rewriter.rewriteOptions(path, dataConfig)
   },
 
   ExportDefaultDeclaration (path) {
-    rewriter.rewriteData(path)
+    rewriter.rewriteOptions(path, dataConfig)
   }
 }
 
-function rewrite (code) {
+/**
+ * Rewrite `<script>`
+ *
+ * @param {String} `<script>` code
+ * @param {Object} `<script type="data">` data
+ * @return {String} result
+ */
+function rewrite (code, data) {
+  dataConfig = data
   const result = babel.transform(code, { // TODO: babel的其他选项
     sourceType: 'module',
     plugins: [{ visitor }]
