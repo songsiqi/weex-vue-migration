@@ -108,11 +108,13 @@ describe('template', () => {
         <div>
           <div onclick="onclickleftitem"></div>
           <div onclick="onclickrightitem(item, $event)"></div>
+          <list-item onclick="onclickitem(item, $event)" ondelete="ondeleteitem(item, $event)"></list-item>
         </div>`
     const expected = `
         <div>
           <div @click="onclickleftitem"></div>
           <div @click="onclickrightitem(item, $event)"></div>
+          <list-item @click.native="onclickitem(item, $event)" @delete="ondeleteitem(item, $event)"></list-item>
         </div>`
     assertDomString(fixture, expected)
   })

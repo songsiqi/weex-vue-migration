@@ -57,7 +57,7 @@ function rewrite (node, deps = []) {
         break
       default:
         if (name.match(/^on/)) {
-          rewriter.rewriteEvent(attrs, i)
+          rewriter.rewriteEvent(nodeName, attrs, i)
         }
         else {
           rewriter.rewriteAttr(attrs, i)

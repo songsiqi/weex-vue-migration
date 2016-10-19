@@ -3,7 +3,7 @@
  * - abc-def -> abcDef
  * - -abc-def -> AbcDef
  *
- * @param  {string} value
+ * @param {string} value
  * @return {string}
  */
 function hyphenedToCamelCase (value) {
@@ -15,14 +15,14 @@ function hyphenedToCamelCase (value) {
  * - abcDef -> abc-def
  * - AbcDef -> -abc-def
  *
- * @param  {string} value
+ * @param {string} value
  * @return {string}
  */
 function camelCaseToHyphened (value) {
   return value.replace(/([A-Z])/g, ($0, $1) => '-' + $1.toLowerCase())
 }
 
-const specialTags = [
+const builtinTags = [
   'template',
   'style',
   'script',
@@ -51,18 +51,42 @@ const specialTags = [
   'wxc-navpage'
 ]
 
+const builtinEvents = [
+  'appear',
+  'blur',
+  'change',
+  'click',
+  'disappear',
+  'focus',
+  'input'
+]
+
 /**
  * Get custom components
  *
- * @param  {Array} deps
+ * @param {Array} deps
  * @return {Array} customComponents
  */
 function getCustomComponents (deps) {
-  return deps.filter((dep) => specialTags.indexOf(dep) === -1)
+  return deps.filter((dep) => builtinTags.indexOf(dep) === -1)
+}
+
+/**
+ * Whether to add `.native` modifier to `v-on`,
+ * while listening for built-in events on custom components
+ *
+ * @param {String} tagName
+ * @param {String} eventName
+ * @return {Boolean}
+ */
+function shouldAppendNativeModifier (tagName, eventName) {
+  return builtinTags.indexOf(tagName) === -1 &&
+    builtinEvents.indexOf(eventName) > -1
 }
 
 module.exports = {
   hyphenedToCamelCase,
   camelCaseToHyphened,
-  getCustomComponents
+  getCustomComponents,
+  shouldAppendNativeModifier
 }

@@ -234,22 +234,25 @@ function rewriteRepeat (attrs, i) {
 
 /**
  * Rewrite events
- *  TODO: `@click.native`, native event of custom compoents,
- *  need to analyze dependencies between componsnts
  *
  * Weex:
  *  onclick="onclickrightitem"
  * Vue:
  *  @click="onclickrightitem"
+ *  @click.native="onclickrightitem"
  *
+ * @param {String} tagName
  * @param {Array} attrs
  * @param {Number} i
  */
-function rewriteEvent (attrs, i) {
+function rewriteEvent (tagName, attrs, i) {
   const value = attrs[i].value.trim()
-  const name = attrs[i].name
+  let name = attrs[i].name.slice(2)
+  if (util.shouldAppendNativeModifier(tagName, name)) {
+    name = `${name}.native`
+  }
   const newAttr = {
-    name: '@' + name.slice(2),
+    name: `@${name}`,
     value: exp.isExpr(value) ? value.slice(2, -2) : value
   }
   attrs.splice(i, 1, newAttr)
