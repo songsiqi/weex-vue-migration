@@ -2,12 +2,12 @@ const scriptRewriter = require('../lib/script-rewriter')
 const chai = require('chai')
 const expect = chai.expect
 
-function assertEqual (fixture, expected, dataConfig) {
-  const result = scriptRewriter.rewrite(fixture, dataConfig)
+function assertEqual (fixture, expected, dataConfig, deps) {
+  const result = scriptRewriter.rewrite(fixture, dataConfig, deps)
   expect(result).eql(expected)
 }
 
-describe('template', () => {
+describe('script', () => {
   it('rewrite `data` to `props` in `module.exports`', () => {
     const fixture1 = `
 module.exports = {
@@ -126,5 +126,33 @@ module.exports = {
   }
 };`
     assertEqual(fixture, expected, dataConfig)
+  })
+
+  it('rewrite `require`, `import` and implicit deps to `components`', () => {
+    const fixture = `
+var a = 'xxx';
+var itemA = require('path/to/item-a.we');
+require('path/to/item-b.we');
+import itemC from 'path/to/item-c.we';
+import 'path/to/item-d.we';
+module.exports = {
+  methods: {}
+};`
+    const expected = `
+var a = 'xxx';
+
+module.exports = {
+  components: {
+    topBanner: require('./top-banner.vue'),
+    bottomBanner: require('./bottom-banner.vue'),
+    itemA: require('path/to/item-a.vue'),
+    itemB: require('path/to/item-b.vue'),
+    itemC: require('path/to/item-c.vue'),
+    itemD: require('path/to/item-d.vue')
+  },
+
+  methods: {}
+};`
+    assertEqual(fixture, expected, null, ['top-banner', 'bottom-banner'])
   })
 })

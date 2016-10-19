@@ -1,13 +1,15 @@
+const Path = require('path')
 const t = require('babel-types')
 const template = require('babel-template')
+const util = require('../util')
 
 /**
  * Rewrite `$el` to `$refs`
  *  TODO:
- *   - const $el = this.$el
- *   - $el('xxx')
- *   - const $ = this.$el
- *   - const self = this
+ *  - const $el = this.$el
+ *  - $el('xxx')
+ *  - const $ = this.$el
+ *  - const self = this
  *
  * Weex:
  *  this.$el('xxx')
@@ -18,9 +20,11 @@ const template = require('babel-template')
  */
 function rewriteEl (path) {
   const { node } = path
+
   if (node.callee &&
     node.callee.property &&
-    node.callee.property.name === '$el'
+    node.callee.property.name === '$el' &&
+    node.arguments && node.arguments.length
   ) {
     path.replaceWith(
       t.MemberExpression(
@@ -36,12 +40,13 @@ function rewriteEl (path) {
 }
 
 /**
- * Rewrite weex instance options
+ * Rewrite weex export
  *
  * @param {Node} path of `AssignmentExpression` or `ExportDefaultDeclaration`
- * @param {String} `<script type="data">` dataConfig
+ * @param {String} dataConfig of `<script type="data">`
+ * @param {Array} requires (contain implicit `deps`)
  */
-function rewriteOptions (path, dataConfig) {
+function rewriteExport (path, dataConfig, requires) {
   const { node } = path
 
   // options in `module.exports`
@@ -51,30 +56,66 @@ function rewriteOptions (path, dataConfig) {
     node.left.property.name === 'exports' &&
     node.right.type === 'ObjectExpression'
   ) {
-    rewriteData(node.right.properties, dataConfig)
+    rewriteOptions(node.right.properties, dataConfig, requires)
   }
 
   // options in `export default`
   else if (node.type === 'ExportDefaultDeclaration' &&
     node.declaration.type === 'ObjectExpression'
   ) {
-    rewriteData(node.declaration.properties, dataConfig)
+    rewriteOptions(node.declaration.properties, dataConfig, requires)
   }
 }
 
 /**
- * Rewrite `data`
- *  - Rewrite `data` to `props`
- *  - Rewrite `<script type="data">` to `data`
+ * Rewrite weex export options
  *
- * @param {Node} path of `AssignmentExpression` or `ExportDefaultDeclaration`
- * @param {String} `<script type="data">` dataConfig
+ * @param {Array} properties
+ * @param {String} dataConfig of `<script type="data">`
+ * @param {Array} requires (contain implicit `deps`)
  */
-function rewriteData (properties, dataConfig) {
+function rewriteOptions (properties, dataConfig, requires) {
   rewriteDataToProps(properties)
   if (dataConfig) {
     rewriteDataConfig(properties, dataConfig)
   }
+  if (requires && requires.length) {
+    insertComponents(properties, requires)
+  }
+}
+
+/**
+ * Insert `components`
+ *
+ * Weex:
+ *  <item-a></item-a>
+ *  require('weex-components/item-b.we')
+ * Vue:
+ *  components: {
+ *    itemA: require('weex-vue-components/item-a.vue'),
+ *    itemB: require('weex-vue-components/item-b.vue')
+ *  }
+ *
+ * @param  {Array} properties
+ * @param  {Array} requires
+ */
+function insertComponents (properties, requires) {
+  const components = requires.map((dep) => {
+    let key = Path.basename(dep, '.vue')
+    key = util.hyphenedToCamelCase(key)
+    return t.ObjectProperty(
+      t.Identifier(key),
+      t.CallExpression(
+        t.Identifier('require'),
+        [t.StringLiteral(dep)]
+      )
+    )
+  })
+  const ast = t.ObjectProperty(
+    t.Identifier('components'),
+    t.ObjectExpression(components)
+  )
+  properties.unshift(ast)
 }
 
 /**
@@ -94,7 +135,7 @@ function rewriteData (properties, dataConfig) {
  *  }
  *
  * @param {Array} properties
- * @param {String} `<script type="data">` dataConfig
+ * @param {String} dataConfig of `<script type="data">`
  */
 function rewriteDataConfig (properties, dataConfig) {
   const buildData = template(`
@@ -103,18 +144,11 @@ function rewriteDataConfig (properties, dataConfig) {
   const dataFucAst = buildData()
   dataFucAst.type = 'FunctionExpression'
   dataFucAst.id = null
-  const dataAst = {
-    type: 'ObjectProperty',
-    method: false,
-    shorthand: false,
-    computed: false,
-    key: {
-      type: 'Identifier',
-      name: 'data'
-    },
-    value: dataFucAst
-  }
-  properties.unshift(dataAst)
+  const ast = t.ObjectProperty(
+    t.Identifier('data'),
+    dataFucAst
+  )
+  properties.unshift(ast)
 }
 
 /**
@@ -216,31 +250,72 @@ function rewriteDataToProps (properties) {
  */
 function rewriteDataNode (property, data) {
   data.forEach((prop) => {
-    prop.value = {
-      type: 'ObjectExpression',
-      properties: [{
-        type: 'ObjectProperty',
-        method: false,
-        shorthand: false,
-        computed: false,
-        key: {
-          type: 'Identifier',
-          name: 'default'
-        },
-        value: prop.value
-      }]
-    }
+    prop.value = t.ObjectExpression([
+      t.ObjectProperty(
+        t.Identifier('default'),
+        prop.value
+      )
+    ])
   })
   property.type = 'ObjectProperty'
   property.key.name = 'props'
   property.kind = null
-  property.value = {
-    type: 'ObjectExpression',
-    properties: data
+  property.value = t.ObjectExpression(data)
+}
+
+/**
+ * Rewrite and collect `require`
+ *
+ * @param {Node} path of `CallExpression`
+ * @return {Array} deps
+ */
+function rewriteRequire (path) {
+  const { node, parentPath } = path
+  const deps = []
+
+  if (node.callee &&
+    node.callee.type === 'Identifier' &&
+    node.callee.name === 'require' &&
+    node.arguments && node.arguments.length &&
+    node.arguments[0].type === 'StringLiteral' &&
+    Path.extname(node.arguments[0].value) === '.we'
+  ) {
+    const dep = node.arguments[0].value.slice(0, -2) + 'vue'
+    deps.push(dep)
+    const { type } = parentPath.node
+    if (type === 'ExpressionStatement' || type === 'VariableDeclarator') {
+      parentPath.remove()
+    }
   }
+
+  return deps
+}
+
+/**
+ * Rewrite and collect `import`
+ *
+ * @param {Node} path of `ImportDeclaration`
+ * @return {Array} deps
+ */
+function rewriteImport (path) {
+  const { node } = path
+  const deps = []
+
+  if (node.source &&
+    node.source.type === 'StringLiteral' &&
+    Path.extname(node.source.value) === '.we'
+  ) {
+    const dep = node.source.value.slice(0, -2) + 'vue'
+    deps.push(dep)
+    path.remove()
+  }
+
+  return deps
 }
 
 module.exports = {
   rewriteEl,
-  rewriteOptions
+  rewriteExport,
+  rewriteRequire,
+  rewriteImport
 }

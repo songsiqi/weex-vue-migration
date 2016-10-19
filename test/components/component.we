@@ -9,6 +9,7 @@
         {{item.title}}
       </text>
     </div>
+    <bottom-banner></bottom-banner>
   </div>
 </template>
 
@@ -21,6 +22,10 @@
   {
     title: '宝贝列表'
   }
+</script>
+
+<script>
+  require('./components/item-list.we');
 </script>
 
 <script>

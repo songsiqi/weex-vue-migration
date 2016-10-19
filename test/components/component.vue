@@ -7,6 +7,7 @@
       <img class="thumb" :src="item.pictureUrl">
       <text class="title">{{item.title}}</text>
     </div>
+    <bottom-banner></bottom-banner>
   </div>
 </template>
 
@@ -18,7 +19,12 @@
 
 
 <script>
+
 module.exports = {
+  components: {
+    bottomBanner: require('./bottom-banner.vue'),
+    itemList: require('./components/item-list.vue')
+  },
   data: function () {
     return {
       "title": "宝贝列表"
@@ -36,3 +42,5 @@ module.exports = {
     }
   }
 };</script>
+
+

@@ -7,7 +7,7 @@ const rewriter = require('./rewriter')
  * @param {Node|String} node
  * @param {Array} deps
  */
-function rewrite (node, deps) {
+function rewrite (node, deps = []) {
   if (typeof node === 'string') {
     const options = {
       treeAdapter: parse5.treeAdapters.default,

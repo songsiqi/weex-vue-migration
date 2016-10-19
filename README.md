@@ -43,38 +43,34 @@ props: {
   level: { default: 1 },
   value: { default: '' }
 }
-data是function的情况，return之前有其他语句
+data是function，return之前有其他语句的情况
 
 4、
 Weex:
-require('weex-components')
-标签deps隐式依赖
-Vue: // 通过 components 字段显性定义
+<list-item></list-item>
+require('weex-components/list-item.we')
+Vue:
 components: {
-  item: require('weex-vue-components/list-item.vue'),
-  button: require('weex-vue-components/button.vue'),
-  countdown: require('weex-vue-components/countdown.vue'),
-  hn: require('weex-vue-components/hn.vue')
+  listItem: require('weex-vue-components/list-item.vue')
 }
+require、import语句必须在最前
 
 5、
-Weex:
-$dispatch()/$broadcast()
-Vue: // 不能完全等价迁移，部分场景需要手工调整
-$emit()
-
-6、
 Weex:
 <script type="data"></script>
 <script type="config"></script>
 Vue:
 data 转成 root 组件的 data option，config 在 vue 里暂时没有实际意义，可以忽略先
 
-7、
+6、
 Weex:
 <element></element>
 Vue:
 转换成新的.vue文件？
 Vue.component()
 
-8、所有js代码的ES6代码转换问题
+7、
+Weex:
+$dispatch()/$broadcast()
+Vue: // 不能完全等价迁移，部分场景需要手工调整
+$emit()
