@@ -2,9 +2,9 @@ const scriptRewriter = require('../lib/script-rewriter')
 const chai = require('chai')
 const expect = chai.expect
 
-function assertEqual (fixture, expected, dataConfig, deps) {
-  const result = scriptRewriter.rewrite(fixture, dataConfig, deps)
-  expect(result).eql(expected)
+function assertEqual (fixture, expected, data, deps, elementList) {
+  const result = scriptRewriter.rewrite(fixture, { data, deps, elementList })
+  expect(result.code).eql(expected)
 }
 
 describe('script', () => {
@@ -107,7 +107,7 @@ module.exports = {
     }
   }
 };`
-    const dataConfig = '{ a: 1, b: { c: 1 } }'
+    const data = '{ a: 1, b: { c: 1 } }'
     const expected = `
 module.exports = {
   data: function () {
@@ -125,7 +125,7 @@ module.exports = {
     }
   }
 };`
-    assertEqual(fixture, expected, dataConfig)
+    assertEqual(fixture, expected, data)
   })
 
   it('rewrite `require`, `import` and implicit deps to `components`', () => {
@@ -138,6 +138,7 @@ import 'path/to/item-d.we';
 module.exports = {
   methods: {}
 };`
+    const deps = ['top-banner', 'bottom-banner']
     const expected = `
 var a = 'xxx';
 
@@ -153,6 +154,6 @@ module.exports = {
 
   methods: {}
 };`
-    assertEqual(fixture, expected, null, ['top-banner', 'bottom-banner'])
+    assertEqual(fixture, expected, null, deps)
   })
 })

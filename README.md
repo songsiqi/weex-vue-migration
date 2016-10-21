@@ -2,13 +2,15 @@
 
 Migration from *.we file to *.vue file.
 
-https://github.com/weexteam/weex-vue-framework/issues/9
+任务：
 
-https://github.com/weexteam/weex-vue-framework/issues/4
+* https://github.com/weexteam/weex-vue-framework/issues/9
+* https://github.com/weexteam/weex-vue-framework/issues/4
 
 babel插件编写：
 
 * http://babeljs.io/docs/usage/api/
+* https://github.com/babel/babel/tree/master/packages/babel-types
 * https://github.com/thejameskyle/babel-handbook/blob/master/translations/zh-Hans/README.md
 
 ## TODO
@@ -57,10 +59,10 @@ data 转成 root 组件的 data option，config 在 vue 里暂时没有实际意
 
 5、
 Weex:
-<element></element>
+<element name="xx"></element>
 Vue:
-转换成新的.vue文件？
-Vue.component()
+Vue.component({xx: { ... }})
+创建空module.export，element和script都需要
 
 6、
 Weex:

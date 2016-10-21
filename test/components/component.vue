@@ -1,5 +1,6 @@
 <template>
   <div>
+    <top-banner></top-banner>
     <div>
       <text>{{title}}</text>
     </div>
@@ -18,12 +19,19 @@
 
 
 
+
+
 <script>
 
 module.exports = {
   components: {
     bottomBanner: require('./bottom-banner.vue'),
-    itemList: require('./components/item-list.vue')
+    itemList: require('./components/item-list.vue'),
+    topBanner: { props: { src: {
+          default: '//gw.alicdn.com/imgextra/i1/2927210366/TB22qwdXhaK.eBjSZFwXXXjsFXa-2927210366.jpg'
+        } }, template: '\n    <div class="benner">\n      <img :src="src">\n    </div>\n  ',
+      style: '\n    .banner { width: 100; height: 100; }\n  '
+    }
   },
   data: function () {
     return {

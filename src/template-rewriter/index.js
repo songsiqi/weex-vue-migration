@@ -6,6 +6,7 @@ const rewriter = require('./rewriter')
  *
  * @param {Node|String} node
  * @param {Array} deps
+ * @return {Node} node
  */
 function rewrite (node, deps = []) {
   if (typeof node === 'string') {

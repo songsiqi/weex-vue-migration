@@ -3,6 +3,7 @@ const rewriter = require('./rewriter')
 
 let dataConfig
 let requires
+let elements
 
 const visitor = {
   CallExpression (path) {
@@ -14,11 +15,11 @@ const visitor = {
   },
 
   AssignmentExpression (path) {
-    rewriter.rewriteExport(path, dataConfig, requires)
+    rewriter.rewriteExport(path, dataConfig, requires, elements)
   },
 
   ExportDefaultDeclaration (path) {
-    rewriter.rewriteExport(path, dataConfig, requires)
+    rewriter.rewriteExport(path, dataConfig, requires, elements)
   },
 
   ImportDeclaration (path) {
@@ -33,18 +34,22 @@ const visitor = {
  * Rewrite `<script>`
  *
  * @param {String} `<script>` code
- * @param {Object} `<script type="data">` data
- * @return {String} result
+ * @param {Object} params<data, deps, elementList>
+ * @return {Object} result<code, map, ast>
  */
-function rewrite (code, data, deps = []) {
+function rewrite (code, { data, deps = [], elementList = [] }) {
   dataConfig = data
+  deps = deps.filter((dep) => {
+    return elementList.map((element) => element.name).indexOf(dep) === -1
+  })
   requires = deps.map((dep) => `./${dep}.vue`)
-  const result = babel.transform(code, { // TODO: other babel options
+  elements = elementList
+  const result = babel.transform(code, {
     sourceType: 'module',
     plugins: [{ visitor }]
   })
   // console.log(JSON.stringify(result.ast.program, null, 2))
-  return result.code
+  return result
 }
 
 exports.rewrite = rewrite

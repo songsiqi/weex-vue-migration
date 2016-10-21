@@ -45,8 +45,9 @@ function rewriteEl (path) {
  * @param {Node} path of `AssignmentExpression` or `ExportDefaultDeclaration`
  * @param {String} dataConfig of `<script type="data">`
  * @param {Array} requires (contain implicit `deps`)
+ * @param {Array} elements
  */
-function rewriteExport (path, dataConfig, requires) {
+function rewriteExport (path, dataConfig, requires, elements) {
   const { node } = path
 
   // options in `module.exports`
@@ -56,14 +57,14 @@ function rewriteExport (path, dataConfig, requires) {
     node.left.property.name === 'exports' &&
     node.right.type === 'ObjectExpression'
   ) {
-    rewriteOptions(node.right.properties, dataConfig, requires)
+    rewriteOptions(node.right.properties, dataConfig, requires, elements)
   }
 
   // options in `export default`
   else if (node.type === 'ExportDefaultDeclaration' &&
     node.declaration.type === 'ObjectExpression'
   ) {
-    rewriteOptions(node.declaration.properties, dataConfig, requires)
+    rewriteOptions(node.declaration.properties, dataConfig, requires, elements)
   }
 }
 
@@ -73,14 +74,15 @@ function rewriteExport (path, dataConfig, requires) {
  * @param {Array} properties
  * @param {String} dataConfig of `<script type="data">`
  * @param {Array} requires (contain implicit `deps`)
+ * @param {Array} elements
  */
-function rewriteOptions (properties, dataConfig, requires) {
+function rewriteOptions (properties, dataConfig, requires, elements) {
   rewriteDataToProps(properties)
   if (dataConfig) {
     rewriteDataConfig(properties, dataConfig)
   }
   if (requires && requires.length) {
-    insertComponents(properties, requires)
+    insertComponents(properties, requires, elements)
   }
 }
 
@@ -90,16 +92,23 @@ function rewriteOptions (properties, dataConfig, requires) {
  * Weex:
  *  <item-a></item-a>
  *  require('weex-components/item-b.we')
+ *  <element name="item-c"></element>
  * Vue:
  *  components: {
  *    itemA: require('weex-vue-components/item-a.vue'),
- *    itemB: require('weex-vue-components/item-b.vue')
+ *    itemB: require('weex-vue-components/item-b.vue'),
+ *    itemC: {
+ *      templete: '...',
+ *      style: '...',
+ *      ...
+ *    }
  *  }
  *
  * @param  {Array} properties
  * @param  {Array} requires
+ * @param  {Array} elements
  */
-function insertComponents (properties, requires) {
+function insertComponents (properties, requires, elements) {
   const components = requires.map((dep) => {
     let key = Path.basename(dep, '.vue')
     key = util.hyphenedToCamelCase(key)
@@ -111,6 +120,28 @@ function insertComponents (properties, requires) {
       )
     )
   })
+
+  elements.forEach((element) => {
+    const { name, templateContent, styleContent, scriptExport } = element
+    if (templateContent) {
+      scriptExport.push(t.ObjectProperty(
+        t.Identifier('template'),
+        t.stringLiteral(templateContent)
+      ))
+    }
+    if (styleContent) {
+      scriptExport.push(t.ObjectProperty(
+        t.Identifier('style'),
+        t.stringLiteral(styleContent)
+      ))
+    }
+    const elementAst = t.ObjectProperty(
+      t.Identifier(util.hyphenedToCamelCase(name)),
+      t.ObjectExpression(scriptExport)
+    )
+    components.push(elementAst)
+  })
+
   const ast = t.ObjectProperty(
     t.Identifier('components'),
     t.ObjectExpression(components)
