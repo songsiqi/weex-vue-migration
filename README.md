@@ -62,7 +62,7 @@ Weex:
 <element name="xx"></element>
 Vue:
 Vue.component({xx: { ... }})
-创建空module.export，element和script都需要
+module.exports和export default之前有其他语句的情况
 
 6、
 Weex:

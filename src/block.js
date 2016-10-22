@@ -1,3 +1,5 @@
+const parse5 = require('parse5')
+
 /**
  * Normalize multiple `#text` node to one
  *
@@ -80,7 +82,6 @@ function block (doc) {
             i--
           }
           else {
-            // TODO: deal with `<script type="config">`
             result[type] = result[type] || child
           }
         }
@@ -105,6 +106,17 @@ function block (doc) {
       default:
         break
     }
+  }
+
+  // FIXME: ensure there exists a `<script>` for `<element>`
+  if (result.elements && result.elements.length && !result.script) {
+    const treeAdapter = parse5.treeAdapters.default
+    const namespaceUrl = 'http://www.w3.org/1999/xhtml'
+    const scriptNode = treeAdapter.createElement('script', namespaceUrl, [])
+    treeAdapter.insertText(scriptNode, '\n  module.exports = {}\n')
+    treeAdapter.appendChild(doc, scriptNode)
+    treeAdapter.insertText(doc, '\n')
+    result.script = scriptNode
   }
 
   return result

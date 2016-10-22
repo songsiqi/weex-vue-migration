@@ -14,10 +14,24 @@ function assertEqual (fixture, expected) {
   expect(transformer.transform(fixture)).eql(expected)
 }
 
+const testDir = './test/components/'
+
 describe('component', () => {
   it('single component', () => {
-    const fixture = readFile('./test/components/component.we')
-    const expected = readFile('./test/components/component.vue')
+    const fixture = readFile(`${testDir}/single.we`)
+    const expected = readFile(`${testDir}/single.vue`)
+    assertEqual(fixture, expected)
+  })
+
+  it('component with element', () => {
+    const fixture = readFile(`${testDir}/element.we`)
+    const expected = readFile(`${testDir}/element.vue`)
+    assertEqual(fixture, expected)
+  })
+
+  it('minimal component with minimal element', () => {
+    const fixture = readFile(`${testDir}/minimal.we`)
+    const expected = readFile(`${testDir}/minimal.vue`)
     assertEqual(fixture, expected)
   })
 })

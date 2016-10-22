@@ -5,11 +5,6 @@ const util = require('../util')
 
 /**
  * Rewrite `$el` to `$refs`
- *  TODO:
- *  - const $el = this.$el
- *  - $el('xxx')
- *  - const $ = this.$el
- *  - const self = this
  *
  * Weex:
  *  this.$el('xxx')
@@ -81,7 +76,7 @@ function rewriteOptions (properties, dataConfig, requires, elements) {
   if (dataConfig) {
     rewriteDataConfig(properties, dataConfig)
   }
-  if (requires && requires.length) {
+  if ((requires && requires.length) || (elements && elements.length)) {
     insertComponents(properties, requires, elements)
   }
 }
@@ -121,30 +116,9 @@ function insertComponents (properties, requires, elements) {
     )
   })
 
-  elements.forEach((element) => {
-    const { name, templateContent, styleContent, scriptExport } = element
-    if (templateContent) {
-      scriptExport.push(t.ObjectProperty(
-        t.Identifier('template'),
-        t.stringLiteral(templateContent)
-      ))
-    }
-    if (styleContent) {
-      scriptExport.push(t.ObjectProperty(
-        t.Identifier('style'),
-        t.stringLiteral(styleContent)
-      ))
-    }
-    const elementAst = t.ObjectProperty(
-      t.Identifier(util.hyphenedToCamelCase(name)),
-      t.ObjectExpression(scriptExport)
-    )
-    components.push(elementAst)
-  })
-
   const ast = t.ObjectProperty(
     t.Identifier('components'),
-    t.ObjectExpression(components)
+    t.ObjectExpression(components.concat(elements))
   )
   properties.unshift(ast)
 }
@@ -184,7 +158,6 @@ function rewriteDataConfig (properties, dataConfig) {
 
 /**
  * Rewrite `data` to `props`
- *  TODO: deal with statements before `return` in data function
  *
  * Weex:
  *  module.exports = {
