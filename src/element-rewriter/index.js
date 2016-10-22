@@ -1,5 +1,4 @@
 const t = require('babel-types')
-const parse5 = require('parse5')
 const block = require('../block')
 const templateRewriter = require('../template-rewriter')
 const scriptRewriter = require('../script-rewriter')
@@ -48,8 +47,7 @@ function rewrite (element, deps) {
   }
 
   if (template) {
-    const templateNode = templateRewriter.rewrite(template.content, deps)
-    const templateContent = parse5.serialize(templateNode)
+    const templateContent = templateRewriter.rewrite(template.content, deps)
     scriptExport.unshift(t.ObjectProperty(
       t.Identifier('template'),
       t.stringLiteral(templateContent)

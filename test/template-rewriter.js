@@ -1,11 +1,10 @@
 const templateRewriter = require('../lib/template-rewriter')
-const parse5 = require('parse5')
 const chai = require('chai')
 const expect = chai.expect
 
 function assertDomString (fixture, expected) {
-  const node = templateRewriter.rewrite(fixture, [])
-  expect(parse5.serialize(node)).eql(expected)
+  const result = templateRewriter.rewrite(fixture, [])
+  expect(result).eql(expected)
 }
 
 describe('template', () => {

@@ -6,7 +6,7 @@ const rewriter = require('./rewriter')
  *
  * @param {Node|String} node
  * @param {Array} deps
- * @return {Node} node
+ * @return {String} templateContent
  */
 function rewrite (node, deps = []) {
   if (typeof node === 'string') {
@@ -72,7 +72,8 @@ function rewrite (node, deps = []) {
     rewrite(child, deps)
   })
 
-  return node
+  const templateContent = parse5.serialize(node)
+  return templateContent
 }
 
 exports.rewrite = rewrite

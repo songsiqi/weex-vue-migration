@@ -1,4 +1,4 @@
-const transformer = require('../')
+const migrater = require('../')
 const fs = require('fs')
 const chai = require('chai')
 const expect = chai.expect
@@ -11,10 +11,11 @@ function readFile (filepath) {
 }
 
 function assertEqual (fixture, expected) {
-  expect(transformer.transform(fixture)).eql(expected)
+  const result = migrater.transform(fixture)
+  expect(result).eql(expected)
 }
 
-const testDir = './test/components/'
+const testDir = './test/components'
 
 describe('component', () => {
   it('single component', () => {

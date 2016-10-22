@@ -2,11 +2,14 @@
   "name": "weex-vue-migration",
   "version": "0.1.0",
   "description": "migration from *.we file to *.vue file",
-  "main": "index.js",
   "author": "songsiqi <songsiqi2006@126.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/weexteam/weex-vue-migration.git"
+  },
+  "main": "index.js",
+  "bin": {
+    "weex-vue-migrate": "./bin/migrater.js"
   },
   "license": "GPL-3.0",
   "keywords": [
@@ -29,6 +32,9 @@
     "babel-core": "~6.17.0",
     "babel-template": "^6.16.0",
     "babel-types": "~6.16.0",
+    "chalk": "~1.1.3",
+    "commander": "~2.9.0",
+    "fs-extra": "~0.30.0",
     "parse5": "~2.2.0"
   },
   "devDependencies": {
