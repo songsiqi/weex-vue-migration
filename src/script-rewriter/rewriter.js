@@ -88,12 +88,14 @@ function rewriteOptions (properties, dataConfig, requires, elements) {
  * Weex:
  *  <item-a></item-a>
  *  require('weex-components/item-b.we')
- *  <element name="item-c"></element>
+ *  import 'weex-components/item-c.we'
+ *  <element name="item-d"></element>
  * Vue:
  *  components: {
  *    itemA: require('weex-vue-components/item-a.vue'),
  *    itemB: require('weex-vue-components/item-b.vue'),
- *    itemC: {
+ *    itemC: require('weex-vue-components/item-c.vue'),
+ *    itemD: {
  *      templete: '...',
  *      style: '...',
  *      ...
