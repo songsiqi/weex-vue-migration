@@ -29,6 +29,24 @@
     .banner { width: 100; height: 100; }
   </style>
   <script>
+    module.exports = {
+      data: {
+        src: '//gw.alicdn.com/imgextra/i1/2927210366/TB22qwdXhaK.eBjSZFwXXXjsFXa-2927210366.jpg'
+      }
+    };
+  </script>
+</element>
+
+<element name="bottom-banner">
+  <template>
+    <div class="benner">
+      <img src="{{src}}">
+    </div>
+  </template>
+  <style>
+    .banner { width: 100; height: 100; }
+  </style>
+  <script>
     export default {
       data: {
         src: '//gw.alicdn.com/imgextra/i1/2927210366/TB22qwdXhaK.eBjSZFwXXXjsFXa-2927210366.jpg'

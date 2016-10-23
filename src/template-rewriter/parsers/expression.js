@@ -65,6 +65,7 @@ function save (str, isString) {
 function rewrite (raw) {
   const c = raw.charAt(0)
   let path = raw.slice(1)
+  /* istanbul ignore if */
   if (allowedKeywordsRE.test(path)) {
     return raw
   }

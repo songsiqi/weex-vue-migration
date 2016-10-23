@@ -30,6 +30,7 @@ function rewriteContentTag (node) {
 function rewriteTextNode (node) {
   const childNodes = node.childNodes || []
   childNodes.forEach((child) => {
+    /* istanbul ignore else */
     if (child.nodeName === '#text') {
       child.value = child.value.trim()
     }
@@ -70,6 +71,7 @@ function rewriteId (attrs, i) {
 function rewriteClass (attrs, i) {
   const value = attrs[i].value.trim()
 
+  /* istanbul ignore else */
   if (value) {
     // handle space in bindings
     const classPartList = value.split(' ')
@@ -86,7 +88,8 @@ function rewriteClass (attrs, i) {
         expStart = expEnd = -1
       }
       else if ((expStart === -1 && expEnd === -1) ||
-        (classPart.indexOf('{{') > -1 && classPart.indexOf('}}') > -1)) {
+        (classPart.indexOf('{{') > -1 && classPart.indexOf('}}') > -1)
+      ) {
         classList.push(classPart)
       }
     })
@@ -127,6 +130,7 @@ function rewriteStyle (attrs, i) {
   const value = attrs[i].value.trim()
   const styleList = []
 
+  /* istanbul ignore else */
   if (value) {
     let hasBinding = false
     value.split(';').forEach((declaration) => {

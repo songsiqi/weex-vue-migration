@@ -56,6 +56,7 @@ function rewriteExport (path, dataConfig, requires, elements) {
   }
 
   // options in `export default`
+  /* istanbul ignore else */
   else if (node.type === 'ExportDefaultDeclaration' &&
     node.declaration.type === 'ObjectExpression'
   ) {
@@ -204,6 +205,7 @@ function rewriteDataToProps (properties) {
       }
 
       // case 2: `data: function () { return { ... } }`
+      /* istanbul ignore else */
       else if (property.value.type === 'FunctionExpression' &&
         property.value.body &&
         property.value.body.type === 'BlockStatement' &&
@@ -211,6 +213,7 @@ function rewriteDataToProps (properties) {
         property.value.body.body.length
       ) {
         property.value.body.body.forEach((statement) => {
+          /* istanbul ignore else */
           if (statement.type === 'ReturnStatement' &&
             statement.argument.type === 'ObjectExpression' &&
             statement.argument.properties &&
@@ -227,12 +230,14 @@ function rewriteDataToProps (properties) {
       property.kind === 'method' &&
       property.key.name === 'data'
     ) {
+      /* istanbul ignore else */
       if (property.body &&
         property.body.type === 'BlockStatement' &&
         property.body.body &&
         property.body.body.length
       ) {
         property.body.body.forEach((statement) => {
+          /* istanbul ignore else */
           if (statement.type === 'ReturnStatement' &&
             statement.argument.type === 'ObjectExpression' &&
             statement.argument.properties &&
@@ -287,6 +292,8 @@ function rewriteRequire (path) {
     const dep = node.arguments[0].value.slice(0, -2) + 'vue'
     deps.push(dep)
     const { type } = parentPath.node
+
+    /* istanbul ignore else */
     if (type === 'ExpressionStatement' || type === 'VariableDeclarator') {
       parentPath.remove()
     }
@@ -305,6 +312,7 @@ function rewriteImport (path) {
   const { node } = path
   const deps = []
 
+  /* istanbul ignore else */
   if (node.source &&
     node.source.type === 'StringLiteral' &&
     Path.extname(node.source.value) === '.we'

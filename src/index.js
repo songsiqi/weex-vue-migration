@@ -28,11 +28,13 @@ function transform (weexCode) {
     })
   }
 
+  /* istanbul ignore else */
   if (template) {
     templateRewriter.rewrite(template.content, deps)
     deps = util.getCustomComponents(deps)
   }
 
+  /* istanbul ignore else */
   if (script) {
     const scriptContent = script.childNodes[0].value
     const options = { data, deps, elementList }

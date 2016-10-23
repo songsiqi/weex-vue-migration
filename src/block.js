@@ -13,14 +13,18 @@ function normalizeTextNode (result, type, childNodes, i) {
   const child = childNodes[i]
   let value = ''
 
+  /* istanbul ignore else */
   if (child.childNodes && child.childNodes.length) {
     let parentNode
     child.childNodes.forEach((child) => {
+      /* istanbul ignore else */
       if (child.nodeName === '#text') {
         value += child.value
         parentNode = child.parentNode
       }
     })
+
+    /* istanbul ignore else */
     if (value) {
       child.childNodes = [{
         nodeName: '#text',
@@ -69,11 +73,13 @@ function block (doc) {
       case 'script':
         let type
         attrs.forEach((attr) => {
+          /* istanbul ignore else */
           if (attr.name === 'type') {
             type = attr.value
           }
         })
         if (type) {
+          /* istanbul ignore else */
           if (type === 'data') {
             let data = normalizeTextNode(result, 'data', childNodes, i)
             data = new Function('return ' + data.replace(/\n/g, ''))()
@@ -94,6 +100,7 @@ function block (doc) {
       case 'wa-element':
       case 'we-element':
         attrs.forEach((attr) => {
+          /* istanbul ignore else */
           if (attr.name === 'name') {
             child.name = attr.value
           }

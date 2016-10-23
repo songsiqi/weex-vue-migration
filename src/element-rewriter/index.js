@@ -20,6 +20,7 @@ function rewrite (element, deps) {
     const scriptContent = script.childNodes[0].value
     const scriptResult = scriptRewriter.rewrite(scriptContent, {})
 
+    /* istanbul ignore else */
     if (scriptResult.ast.program &&
       scriptResult.ast.program.body &&
       scriptResult.ast.program.body.length
@@ -37,6 +38,7 @@ function rewrite (element, deps) {
         }
 
         // options in `export default`
+        /* istanbul ignore else */
         else if (node.type === 'ExportDefaultDeclaration' &&
           node.declaration.type === 'ObjectExpression'
         ) {
@@ -46,6 +48,7 @@ function rewrite (element, deps) {
     }
   }
 
+  /* istanbul ignore else */
   if (template) {
     const templateContent = templateRewriter.rewrite(template.content, deps)
     scriptExport.unshift(t.ObjectProperty(
@@ -54,6 +57,7 @@ function rewrite (element, deps) {
     ))
   }
 
+  /* istanbul ignore else */
   if (style) {
     const styleContent = style.childNodes[0].value
     scriptExport.unshift(t.ObjectProperty(

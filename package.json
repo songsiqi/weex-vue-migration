@@ -26,7 +26,8 @@
     "lint:fix": "eslint --fix src test",
     "test": "mocha",
     "test:dev": "mocha -w",
-    "clear": "rm -Rf lib/*"
+    "clear": "rm -Rf lib/*",
+    "cover": "isparta cover --report text --report lcov _mocha -- --reporter dot"
   },
   "dependencies": {
     "babel-core": "~6.17.0",
