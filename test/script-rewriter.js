@@ -8,6 +8,30 @@ function assertEqual (fixture, expected, data, deps, elementList) {
 }
 
 describe('script', () => {
+  it('rewrite `$el` to `$refs`', () => {
+    const fixture1 = `const a = this.$el('xxx');`
+    const expected1 = `const a = this.$refs['xxx'];`
+    assertEqual(fixture1, expected1)
+
+    const fixture2 = `const a = self.$el('xxx');`
+    const expected2 = `const a = self.$refs['xxx'];`
+    assertEqual(fixture2, expected2)
+  })
+
+  it('rewrite `$dispatch` and `$broadcast` to `$emit`', () => {
+    const fixture1 = `this.$dispatch('xxx', data);`
+    const fixture2 = `this.$broadcast('xxx', data);`
+    const expected1 = `this.$emit('xxx', data);`
+    assertEqual(fixture1, expected1)
+    assertEqual(fixture2, expected1)
+
+    const fixture3 = `self.$dispatch('xxx');`
+    const fixture4 = `self.$broadcast('xxx');`
+    const expected2 = `self.$emit('xxx');`
+    assertEqual(fixture3, expected2)
+    assertEqual(fixture4, expected2)
+  })
+
   it('rewrite `data` to `props` in `module.exports`', () => {
     const fixture1 = `
 module.exports = {
@@ -90,12 +114,6 @@ export default {
     assertEqual(fixture1, expected)
     assertEqual(fixture2, expected)
     assertEqual(fixture3, expected)
-  })
-
-  it('rewrite `$el` to `$refs`', () => {
-    const fixture = `const a = self.$el('xxx');`
-    const expected = `const a = self.$refs['xxx'];`
-    assertEqual(fixture, expected)
   })
 
   it('rewrite `<script type="data">` to `data`', () => {

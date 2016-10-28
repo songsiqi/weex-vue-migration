@@ -17,18 +17,69 @@ function rewriteEl (path) {
   const { node } = path
 
   if (node.callee &&
+    node.callee.type === 'MemberExpression' &&
+    node.callee.object &&
+    (node.callee.object.type === 'ThisExpression' ||
+    node.callee.object.type === 'Identifier') &&
     node.callee.property &&
+    node.callee.property.type === 'Identifier' &&
     node.callee.property.name === '$el' &&
     node.arguments && node.arguments.length
   ) {
+    const objectExp = node.callee.object.type === 'ThisExpression' ?
+      t.ThisExpression() :
+      t.identifier(node.callee.object.name)
+
     path.replaceWith(
       t.MemberExpression(
         t.MemberExpression(
-          t.identifier(node.callee.object.name),
+          objectExp,
           t.identifier('$refs')
         ),
         t.stringLiteral(node.arguments[0].value),
         true
+      )
+    )
+  }
+}
+
+/**
+ * Rewrite `$dispatch` and `$broadcast` to `$emit`
+ * This is not fully equivalent, so still have to hand-tune the code.
+ *
+ * Weex:
+ *  this.$dispatch('xxx')
+ *  this.$broadcast('xxx')
+ * Vue:
+ *  this.$emit['xxx']
+ *
+ * @param {Node} path of `CallExpression`
+ */
+function rewriteEvent (path) {
+  const { node } = path
+
+  if (node.callee &&
+    node.callee.type === 'MemberExpression' &&
+    node.callee.object &&
+    (node.callee.object.type === 'ThisExpression' ||
+    node.callee.object.type === 'Identifier') &&
+    node.callee.property &&
+    node.callee.property.type === 'Identifier' &&
+    (node.callee.property.name === '$dispatch' ||
+    node.callee.property.name === '$broadcast') &&
+    node.arguments && node.arguments.length
+  ) {
+    const objectExp = node.callee.object.type === 'ThisExpression' ?
+      t.ThisExpression() :
+      t.identifier(node.callee.object.name)
+
+    path.replaceWith(
+      t.callExpression(
+        t.MemberExpression(
+          objectExp,
+          t.identifier('$emit')
+        ),
+        node.arguments
       )
     )
   }
@@ -329,6 +380,7 @@ function rewriteImport (path) {
 
 module.exports = {
   rewriteEl,
+  rewriteEvent,
   rewriteExport,
   rewriteRequire,
   rewriteImport

@@ -147,9 +147,9 @@ There exist some statements before `module.exports` or `export default`.
 $dispatch()
 $broadcast()
 
-// Vue: // 不能完全等价迁移，部分场景需要手工调整
+// Vue:
 $emit()
 
 // TODO:
-This is not fully equivalent, so not transform yet.
+This is not fully equivalent, so still have to hand-tune the code.
 ```

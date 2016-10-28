@@ -8,6 +8,7 @@ let elements
 const visitor = {
   CallExpression (path) {
     rewriter.rewriteEl(path)
+    rewriter.rewriteEvent(path)
     const depsInScript = rewriter.rewriteRequire(path)
     depsInScript.forEach((dep) => {
       requires.push(dep)
