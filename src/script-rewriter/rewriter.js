@@ -99,7 +99,12 @@ function rewriteExport (path, dataConfig, requires, elements) {
   // options in `module.exports`
   if (node.type === 'AssignmentExpression' &&
     node.operator === '=' &&
+    node.left.type === 'MemberExpression' &&
+    node.left.object &&
+    node.left.object.type === 'Identifier' &&
     node.left.object.name === 'module' &&
+    node.left.property &&
+    node.left.property.type === 'Identifier' &&
     node.left.property.name === 'exports' &&
     node.right.type === 'ObjectExpression'
   ) {

@@ -109,6 +109,18 @@ components: {
 
 // Special case:
 Some `require` or `import` statements locate after `module.exports` or `export default`.
+
+// TODO:
+require `weex-components` to `weex-vue-components`
+Weex:
+require('weex-components')
+Vue:
+components: {
+  item: require('weex-vue-components/list-item.vue'),
+  button: require('weex-vue-components/button.vue'),
+  countdown: require('weex-vue-components/countdown.vue'),
+  hn: require('weex-vue-components/hn.vue')
+}
 ```
 
 * Rewrite `<script>` whose type is `data` and `config`
