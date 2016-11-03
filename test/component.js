@@ -30,9 +30,15 @@ describe('component', () => {
     assertEqual(fixture, expected)
   })
 
-  it('minimal component with minimal element', () => {
+  it('minimal component', () => {
     const fixture = readFile(`${testDir}/minimal.we`)
     const expected = readFile(`${testDir}/minimal.vue`)
+    assertEqual(fixture, expected)
+  })
+
+  it('minimal component with minimal element', () => {
+    const fixture = readFile(`${testDir}/minimal-element.we`)
+    const expected = readFile(`${testDir}/minimal-element.vue`)
     assertEqual(fixture, expected)
   })
 })

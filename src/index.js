@@ -1,6 +1,5 @@
 const parse5 = require('parse5')
 const block = require('./block')
-const util = require('./util')
 const templateRewriter = require('./template-rewriter')
 const scriptRewriter = require('./script-rewriter')
 const elementRewriter = require('./element-rewriter')
@@ -22,16 +21,18 @@ function transform (weexCode) {
   let deps = []
   let elementList = []
 
+  /* istanbul ignore else */
+  if (template) {
+    templateRewriter.rewrite(template.content, deps)
+  }
+
   if (elements && elements.length) {
     elementList = elements.map((element) => {
       return elementRewriter.rewrite(element, deps)
     })
-  }
-
-  /* istanbul ignore else */
-  if (template) {
-    templateRewriter.rewrite(template.content, deps)
-    deps = util.getCustomComponents(deps)
+    deps = deps.filter((dep) => {
+      return elementList.map((element) => element.name).indexOf(dep) === -1
+    })
   }
 
   /* istanbul ignore else */

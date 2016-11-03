@@ -23,14 +23,19 @@ else {
       return
     }
 
+    var start = Date.now()
     var baseName = path.basename(filePath, extName) + '.vue'
     var dirName = path.dirname(filePath)
     var weexCode = fs.readFileSync(filePath, { encoding: 'utf8' })
     var vueCode = migrater.transform(weexCode)
     var outputPath = path.join(program.output || dirName, baseName)
-
     fs.createFileSync(outputPath)
     fs.writeFileSync(outputPath, vueCode, { encoding: 'utf8' })
-    console.log(chalk.green.bold('[Success]: Migrate ') + outputPath)
+    var end = Date.now()
+    var info = chalk.green.bold('[Success]: ') +
+      'Migrate ' + filePath +
+      ' => ' + outputPath +
+      ' in ' + (end - start) + 'ms'
+    console.log(info)
   })
 }

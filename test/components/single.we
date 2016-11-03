@@ -10,6 +10,7 @@
         {{item.title}}
       </text>
     </div>
+    <wxc-button></wxc-button>
     <bottom-banner></bottom-banner>
   </div>
 </template>
@@ -26,10 +27,11 @@
 </script>
 
 <script>
-  require('./components/item-list.we');
+  require('./components/bottom-banner.we');
 </script>
 
 <script>
+  require('weex-components');
   module.exports = {
     data: {
       itemList: [

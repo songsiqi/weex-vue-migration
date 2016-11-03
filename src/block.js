@@ -25,19 +25,22 @@ function normalizeTextNode (result, type, childNodes, i) {
     })
 
     /* istanbul ignore else */
-    if (value) {
+    if (value.trim()) {
       child.childNodes = [{
         nodeName: '#text',
         value,
         parentNode
       }]
-    }
-
-    if (value && !result[type]) {
-      result[type] = child
+      if (!result[type]) {
+        result[type] = child
+      }
+      else {
+        result[type].childNodes[0].value += value
+        childNodes.splice(i, 1)
+        i--
+      }
     }
     else {
-      result[type].childNodes[0].value += value
       childNodes.splice(i, 1)
       i--
     }
@@ -48,6 +51,35 @@ function normalizeTextNode (result, type, childNodes, i) {
   }
 
   return value
+}
+
+/**
+ * ensure `<script>` and `module.export`
+ *
+ * @param {Node} doc
+ * @param {Object} result
+ */
+function fixScript (doc, result) {
+  // FIXME: ensure there exists a `<script>` for `<element>` or implicit deps
+  if (!result.script) {
+    const treeAdapter = parse5.treeAdapters.default
+    const namespaceUrl = 'http://www.w3.org/1999/xhtml'
+    const scriptNode = treeAdapter.createElement('script', namespaceUrl, [])
+    treeAdapter.insertText(scriptNode, '\n  module.exports = {}\n')
+    treeAdapter.appendChild(doc, scriptNode)
+    treeAdapter.insertText(doc, '\n')
+    result.script = scriptNode
+  }
+
+  // FIXME: ensure there exists `module.exports` or `export default`
+  else {
+    const scriptContent = result.script.childNodes[0].value
+    if (!/\s*module.exports\s*=\s*/.test(scriptContent) &&
+      !/\s*export default\s*/.test(scriptContent)
+    ) {
+      result.script.childNodes[0].value += '\n  module.exports = {}\n'
+    }
+  }
 }
 
 /**
@@ -115,16 +147,7 @@ function block (doc) {
     }
   }
 
-  // FIXME: ensure there exists a `<script>` for `<element>`
-  if (result.elements && result.elements.length && !result.script) {
-    const treeAdapter = parse5.treeAdapters.default
-    const namespaceUrl = 'http://www.w3.org/1999/xhtml'
-    const scriptNode = treeAdapter.createElement('script', namespaceUrl, [])
-    treeAdapter.insertText(scriptNode, '\n  module.exports = {}\n')
-    treeAdapter.appendChild(doc, scriptNode)
-    treeAdapter.insertText(doc, '\n')
-    result.script = scriptNode
-  }
+  fixScript(doc, result)
 
   return result
 }

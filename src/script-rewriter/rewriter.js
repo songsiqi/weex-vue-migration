@@ -340,20 +340,27 @@ function rewriteRequire (path) {
   const { node, parentPath } = path
   const deps = []
 
+  function removeRequire () {
+    const { type } = parentPath.node
+    /* istanbul ignore else */
+    if (type === 'ExpressionStatement' || type === 'VariableDeclarator') {
+      parentPath.remove()
+    }
+  }
+
   if (node.callee &&
     node.callee.type === 'Identifier' &&
     node.callee.name === 'require' &&
     node.arguments && node.arguments.length &&
-    node.arguments[0].type === 'StringLiteral' &&
-    Path.extname(node.arguments[0].value) === '.we'
+    node.arguments[0].type === 'StringLiteral'
   ) {
-    const dep = node.arguments[0].value.slice(0, -2) + 'vue'
-    deps.push(dep)
-    const { type } = parentPath.node
-
-    /* istanbul ignore else */
-    if (type === 'ExpressionStatement' || type === 'VariableDeclarator') {
-      parentPath.remove()
+    const { value } = node.arguments[0]
+    if (Path.extname(value) === '.we') {
+      deps.push(value.slice(0, -2) + 'vue')
+      removeRequire()
+    }
+    else if (value === 'weex-components') {
+      removeRequire()
     }
   }
 
@@ -371,13 +378,15 @@ function rewriteImport (path) {
   const deps = []
 
   /* istanbul ignore else */
-  if (node.source &&
-    node.source.type === 'StringLiteral' &&
-    Path.extname(node.source.value) === '.we'
-  ) {
-    const dep = node.source.value.slice(0, -2) + 'vue'
-    deps.push(dep)
-    path.remove()
+  if (node.source && node.source.type === 'StringLiteral') {
+    const { value } = node.source
+    if (Path.extname(value) === '.we') {
+      deps.push(value.slice(0, -2) + 'vue')
+      path.remove()
+    }
+    else if (value === 'weex-components') {
+      path.remove()
+    }
   }
 
   return deps

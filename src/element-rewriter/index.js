@@ -16,6 +16,7 @@ function rewrite (element, deps) {
   const { template, style, script } = block(element)
   let scriptExport = []
 
+  /* istanbul ignore else */
   if (script) {
     const scriptContent = script.childNodes[0].value
     const scriptResult = scriptRewriter.rewrite(scriptContent, {})

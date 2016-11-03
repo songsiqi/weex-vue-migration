@@ -8,6 +8,7 @@
       <img class="thumb" :src="item.pictureUrl">
       <text class="title">{{item.title}}</text>
     </div>
+    <wxc-button></wxc-button>
     <bottom-banner></bottom-banner>
   </div>
 </template>
@@ -20,12 +21,11 @@
 
 
 <script>
-
 module.exports = {
   components: {
     topBanner: require('./top-banner.vue'),
-    bottomBanner: require('./bottom-banner.vue'),
-    itemList: require('./components/item-list.vue')
+    wxcButton: require('weex-vue-components/wxc-button.vue'),
+    bottomBanner: require('./components/bottom-banner.vue')
   },
   data: function () {
     return {

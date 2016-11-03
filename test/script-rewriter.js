@@ -151,19 +151,23 @@ module.exports = {
 var a = 'xxx';
 var itemA = require('path/to/item-a.we');
 require('path/to/item-b.we');
+import 'weex-components';
 import itemC from 'path/to/item-c.we';
 import 'path/to/item-d.we';
+import { throttle } from './util.js';
 module.exports = {
   methods: {}
 };`
-    const deps = ['top-banner', 'bottom-banner']
+    const deps = ['top-banner', 'bottom-banner', 'wxc-button']
     const expected = `
 var a = 'xxx';
 
+import { throttle } from './util.js';
 module.exports = {
   components: {
     topBanner: require('./top-banner.vue'),
     bottomBanner: require('./bottom-banner.vue'),
+    wxcButton: require('weex-vue-components/wxc-button.vue'),
     itemA: require('path/to/item-a.vue'),
     itemB: require('path/to/item-b.vue'),
     itemC: require('path/to/item-c.vue'),

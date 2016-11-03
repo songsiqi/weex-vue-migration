@@ -1,5 +1,6 @@
 const babel = require('babel-core')
 const rewriter = require('./rewriter')
+const util = require('../util')
 
 let dataConfig
 let requires
@@ -9,10 +10,8 @@ const visitor = {
   CallExpression (path) {
     rewriter.rewriteEl(path)
     rewriter.rewriteEvent(path)
-    const depsInScript = rewriter.rewriteRequire(path)
-    depsInScript.forEach((dep) => {
-      requires.push(dep)
-    })
+    const requiresInScript = rewriter.rewriteRequire(path)
+    requires = util.removeDuplicatedRequires(requires, requiresInScript)
   },
 
   AssignmentExpression (path) {
@@ -24,10 +23,8 @@ const visitor = {
   },
 
   ImportDeclaration (path) {
-    const depsInScript = rewriter.rewriteImport(path)
-    depsInScript.forEach((dep) => {
-      requires.push(dep)
-    })
+    const requiresInScript = rewriter.rewriteImport(path)
+    requires = util.removeDuplicatedRequires(requires, requiresInScript)
   }
 }
 
@@ -40,10 +37,7 @@ const visitor = {
  */
 function rewrite (code, { data, deps = [], elementList = [] }) {
   dataConfig = data
-  deps = deps.filter((dep) => {
-    return elementList.map((element) => element.name).indexOf(dep) === -1
-  })
-  requires = deps.map((dep) => `./${dep}.vue`)
+  requires = util.formatDepsToRequires(deps)
   elements = elementList
   const result = babel.transform(code, {
     sourceType: 'module',

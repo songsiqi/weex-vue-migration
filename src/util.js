@@ -1,3 +1,5 @@
+const Path = require('path')
+
 /**
  * rules:
  * - abc-def -> abcDef
@@ -11,32 +13,51 @@ function hyphenedToCamelCase (value) {
 }
 
 const builtinTags = [
-  'template',
-  'style',
-  'script',
-  'element',
-  'wx-element',
-  'wa-element',
-  'we-element',
-  'content',
-  'slot',
-  'container',
-  'div',
-  'scroller',
-  'list',
+  'a',
   'cell',
-  'text',
+  'container',
+  'content',
+  'div',
+  'element',
+  'embed',
+  'hlist',
   'image',
   'img',
-  'input',
-  'switch',
-  'slider',
   'indicator',
+  'input',
+  'list',
+  'loading',
+  'loading-indicator',
+  'refresh',
+  'script',
+  'scroller',
+  'slider',
+  'slider-neighbor',
+  'slot',
+  'style',
+  'switch',
+  'template',
+  'text',
   'video',
-  'a',
+  'wa-element',
+  'we-element',
   'web',
+  'wx-element'
+]
+
+// see: https://github.com/weexteam/weex-components/tree/master/src
+const wxcTags = [
+  'wxc-button',
+  'wxc-countdown',
+  'wxc-hn',
+  'wxc-list-item',
+  'wxc-marquee',
+  'wxc-navbar',
+  'wxc-navpage',
+  'wxc-panel',
   'wxc-tabbar',
-  'wxc-navpage'
+  'wxc-tabitem',
+  'wxc-tip'
 ]
 
 const builtinEvents = [
@@ -50,13 +71,43 @@ const builtinEvents = [
 ]
 
 /**
- * Get custom components
+ * Format deps to requires: implicit deps and weex components
  *
  * @param {Array} deps
  * @return {Array} customComponents
  */
-function getCustomComponents (deps) {
-  return deps.filter((dep) => builtinTags.indexOf(dep) === -1)
+function formatDepsToRequires (deps) {
+  return deps
+    .filter((dep) => builtinTags.indexOf(dep) === -1)
+    .map((dep) => {
+      return wxcTags.indexOf(dep) > -1 ?
+        `weex-vue-components/${dep}.vue` :
+        `./${dep}.vue`
+    })
+}
+
+/**
+ * Remove duplicated requires
+ *  Input:  ['./a.vue', './b.vue'],
+ *          ['./path/to/b.vue', './path/to/c.vue']
+ *  Output: ['./a.vue', './path/to/b.vue', './path/to/c.vue']
+ *
+ * @param {Array} requires
+ * @param {Array} requiresInScript
+ * @return {Array} requires
+ */
+function removeDuplicatedRequires (requires, requiresInScript) {
+  for (let i = 0; i < requires.length; i++) {
+    const basename1 = Path.basename(requires[i])
+    requiresInScript.forEach((dep) => {
+      const basename2 = Path.basename(dep)
+      if (basename1 === basename2) {
+        requires.splice(i, 1)
+        i--
+      }
+    })
+  }
+  return requires.concat(requiresInScript)
 }
 
 /**
@@ -74,6 +125,7 @@ function shouldAppendNativeModifier (tagName, eventName) {
 
 module.exports = {
   hyphenedToCamelCase,
-  getCustomComponents,
+  formatDepsToRequires,
+  removeDuplicatedRequires,
   shouldAppendNativeModifier
 }
