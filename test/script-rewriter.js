@@ -167,7 +167,7 @@ module.exports = {
   components: {
     topBanner: require('./top-banner.vue'),
     bottomBanner: require('./bottom-banner.vue'),
-    wxcButton: require('weex-vue-components/wxc-button.vue'),
+    wxcButton: require('weex-vue-components/button.vue'),
     itemA: require('path/to/item-a.vue'),
     itemB: require('path/to/item-b.vue'),
     itemC: require('path/to/item-c.vue'),

@@ -170,7 +170,7 @@ function insertComponents (properties, requires, elements) {
       t.Identifier(key),
       t.CallExpression(
         t.Identifier('require'),
-        [t.StringLiteral(dep)]
+        [t.StringLiteral(dep.replace(/\/wxc-/, '/'))]
       )
     )
   })

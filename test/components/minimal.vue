@@ -10,6 +10,6 @@
 module.exports = {
   components: {
     topBanner: require('./top-banner.vue'),
-    wxcButton: require('weex-vue-components/wxc-button.vue')
+    wxcButton: require('weex-vue-components/button.vue')
   }
 };</script>
