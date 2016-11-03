@@ -98,29 +98,18 @@ These exist other statements before `return` of `data: function () { return { ..
 
 ```
 // Weex:
-require('weex-components/list-item-a.we')
-import 'weex-components/list-item-a.we'
+require('weex-components')
+require('weex-components/wxc-button.we')
+import 'weex-components/wxc-countdown.we'
 
 // Vue:
 components: {
-  listItemA: require('weex-vue-components/list-item-a.vue'),
-  listItemB: require('weex-vue-components/list-item-b.vue')
+  wxcButton: require('weex-vue-components/button.vue'),
+  wxcCountdown: require('weex-vue-components/countdown.vue')
 }
 
 // Special case:
 Some `require` or `import` statements locate after `module.exports` or `export default`.
-
-// TODO:
-require `weex-components` to `weex-vue-components`
-Weex:
-require('weex-components')
-Vue:
-components: {
-  item: require('weex-vue-components/list-item.vue'),
-  button: require('weex-vue-components/button.vue'),
-  countdown: require('weex-vue-components/countdown.vue'),
-  hn: require('weex-vue-components/hn.vue')
-}
 ```
 
 * Rewrite `<script>` whose type is `data` and `config`
