@@ -65,7 +65,9 @@ module.exports = {
       default: 1
     },
     itemList: {
-      default: [{ id: '520421163634', title: 'title 1' }, { id: '522076777462', title: 'title 2' }]
+      default: function () {
+        return [{ id: '520421163634', title: 'title 1' }, { id: '522076777462', title: 'title 2' }];
+      }
     }
   }
 };`
@@ -107,7 +109,9 @@ export default {
       default: 1
     },
     itemList: {
-      default: [{ id: '520421163634', title: 'title 1' }, { id: '522076777462', title: 'title 2' }]
+      default: function () {
+        return [{ id: '520421163634', title: 'title 1' }, { id: '522076777462', title: 'title 2' }];
+      }
     }
   }
 };`

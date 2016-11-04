@@ -49,7 +49,9 @@ module.exports = {
 
   props: {
     itemList: {
-      default: [{ itemId: '520421163634', title: '宝贝标题1', pictureUrl: '//gd2.alicdn.com/bao/uploaded/i2/T14H1LFwBcXXXXXXXX_!!0-item_pic.jpg' }, { itemId: '522076777462', title: '宝贝标题2', pictureUrl: '//gd1.alicdn.com/bao/uploaded/i1/TB1PXJCJFXXXXciXFXXXXXXXXXX_!!0-item_pic.jpg' }]
+      default: function () {
+        return [{ itemId: '520421163634', title: '宝贝标题1', pictureUrl: '//gd2.alicdn.com/bao/uploaded/i2/T14H1LFwBcXXXXXXXX_!!0-item_pic.jpg' }, { itemId: '522076777462', title: '宝贝标题2', pictureUrl: '//gd1.alicdn.com/bao/uploaded/i1/TB1PXJCJFXXXXciXFXXXXXXXXXX_!!0-item_pic.jpg' }];
+      }
     }
   },
   methods: {

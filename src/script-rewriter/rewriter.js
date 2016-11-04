@@ -221,27 +221,35 @@ function rewriteDataConfig (properties, dataConfig) {
  * Weex:
  *  module.exports = {
  *    data: {
- *      level: 1
+ *      num: 1,
+ *      obj: { a: 1 }
  *    }
  *  }
  *  module.exports = {
  *    data: function () {
  *      return {
- *        level: 1
+ *        num: 1,
+ *        obj: { a: 1 }
  *      }
  *    }
  *  }
  *  module.exports = {
  *    data() {
  *      return {
- *        level: 1
+ *        num: 1,
+ *        obj: { a: 1 }
  *      }
  *    }
  *  }
  * Vue:
  *  module.exports = {
  *    props: {
- *      level: { default: 1 }
+ *      num: { default: 1 },
+ *      obj: {
+ *        default: function () {
+ *          return { a: 1 }
+ *        }
+ *      }
  *    }
  *  }
  *
@@ -317,13 +325,29 @@ function rewriteDataToProps (properties) {
  */
 function rewriteDataNode (property, data) {
   data.forEach((prop) => {
+    let defaultValue = prop.value
+
+    // object/array defaults should be returned from a factory function
+    if (defaultValue.type === 'ObjectExpression' ||
+      defaultValue.type === 'ArrayExpression'
+    ) {
+      defaultValue = t.FunctionExpression(
+        null,
+        [],
+        t.BlockStatement(
+          [t.ReturnStatement(defaultValue)]
+        )
+      )
+    }
+
     prop.value = t.ObjectExpression([
       t.ObjectProperty(
         t.Identifier('default'),
-        prop.value
+        defaultValue
       )
     ])
   })
+
   property.type = 'ObjectProperty'
   property.key.name = 'props'
   property.kind = null
