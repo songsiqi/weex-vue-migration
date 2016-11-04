@@ -25,8 +25,8 @@
     "dev": "gazeer -p \"src/**/*.js\" -c \"npm run lint && npm run build\"",
     "lint": "eslint src test",
     "lint:fix": "eslint --fix src test",
-    "test": "mocha",
-    "test:dev": "mocha -w",
+    "test": "mocha test/*.js",
+    "test:dev": "mocha -w test/*.js",
     "clear": "rm -Rf lib/*",
     "cover": "isparta cover --report text --report lcov _mocha -- --reporter dot"
   },
