@@ -80,14 +80,18 @@ const self = this
 ```
 // Weex:
 data: {
-  level: 1,
-  value: ''
+  num: 1,
+  obj: { a: 1 }
 }
 
 // Vue:
 props: {
-  level: { default: 1 },
-  value: { default: '' }
+  num: { default: 1 },
+  obj: {
+    default: function () {
+      return { a: 1 }
+    }
+  }
 }
 
 // Special case:
