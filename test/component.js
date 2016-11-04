@@ -19,26 +19,26 @@ const testDir = './test/components'
 
 describe('component', () => {
   it('single component', () => {
-    const fixture = readFile(`${testDir}/single.we`)
-    const expected = readFile(`${testDir}/single.vue`)
+    const fixture = readFile(`${testDir}/weex/single.we`)
+    const expected = readFile(`${testDir}/vue/single.vue`)
     assertEqual(fixture, expected)
   })
 
   it('component with element', () => {
-    const fixture = readFile(`${testDir}/element.we`)
-    const expected = readFile(`${testDir}/element.vue`)
+    const fixture = readFile(`${testDir}/weex/element.we`)
+    const expected = readFile(`${testDir}/vue/element.vue`)
     assertEqual(fixture, expected)
   })
 
   it('minimal component', () => {
-    const fixture = readFile(`${testDir}/minimal.we`)
-    const expected = readFile(`${testDir}/minimal.vue`)
+    const fixture = readFile(`${testDir}/weex/minimal.we`)
+    const expected = readFile(`${testDir}/vue/minimal.vue`)
     assertEqual(fixture, expected)
   })
 
   it('minimal component with minimal element', () => {
-    const fixture = readFile(`${testDir}/minimal-element.we`)
-    const expected = readFile(`${testDir}/minimal-element.vue`)
+    const fixture = readFile(`${testDir}/weex/minimal-element.we`)
+    const expected = readFile(`${testDir}/vue/minimal-element.vue`)
     assertEqual(fixture, expected)
   })
 })
