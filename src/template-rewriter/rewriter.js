@@ -217,6 +217,7 @@ function rewriteRepeat (attrs, i) {
     value = value.slice(2, -2)
   }
   const inMatch = value.match(/(.*) (?:in) (.*)/)
+  /* istanbul ignore else */
   if (inMatch) {
     const itMatch = inMatch[1].match(/\((.*),(.*)\)/)
     if (itMatch) { // reverse value and key
@@ -225,9 +226,6 @@ function rewriteRepeat (attrs, i) {
       const list = inMatch[2].trim()
       value = `(${val}, ${key}) in ${list}`
     }
-  }
-  else { // FIXME: must have `value`
-    value = `$value in ${value}`
   }
   const newAttr = {
     name: 'v-for',

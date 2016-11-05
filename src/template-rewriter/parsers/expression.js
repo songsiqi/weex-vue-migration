@@ -17,11 +17,11 @@ const improperKeywordsRE =
 
 const wsRE = /\s/g
 const newlineRE = /\n/g
-const saveRE = /[\{,]\s*[\w\$_]+\s*:|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")|new |typeof |void /g
+const saveRE = /[{,]\s*[\w$_]+\s*:|('(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*\$\{|\}(?:[^`\\]|\\.)*`|`(?:[^`\\]|\\.)*`)|new |typeof |void /g
 const restoreRE = /"(\d+)"/g
-const pathTestRE = /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\['.*?'\]|\[".*?"\]|\[\d+\]|\[[A-Za-z_$][\w$]*\])*$/
-const identRE = /[^\w$\.](?:[A-Za-z_$][\w$]*)/g
-const booleanLiteralRE = /^(?:true|false)$/
+const pathTestRE = /^[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*|\['.*?']|\[".*?"]|\[\d+]|\[[A-Za-z_$][\w$]*])*$/
+const identRE = /[^\w$.](?:[A-Za-z_$][\w$]*)/g
+const literalValueRE = /^(?:true|false|null|undefined|Infinity|NaN)$/
 
 /**
  * Save / Rewrite / Restore
@@ -138,7 +138,7 @@ function parseExpression (exp) {
 function isSimplePath (exp) {
   return pathTestRE.test(exp) &&
     // don't treat true/false as paths
-    !booleanLiteralRE.test(exp) &&
+    !literalValueRE.test(exp) &&
     // Math constants e.g. Math.PI, Math.E etc.
     exp.slice(0, 5) !== 'Math.'
 }

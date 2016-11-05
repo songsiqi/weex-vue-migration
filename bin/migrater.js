@@ -27,11 +27,17 @@ function processFile (filePath) {
   }
 
   var start = Date.now()
-  var baseName = path.basename(filePath, extName) + '.vue'
-  var dirName = path.dirname(filePath)
   var weexCode = fs.readFileSync(filePath, { encoding: 'utf8' })
   var vueCode = migrater.transform(weexCode)
-  var outputPath = path.join(program.output || '.', dirName, baseName)
+
+  var outputDir = program.output || '.'
+  var baseName = path.basename(filePath, extName) + '.vue'
+  var dirName = path.dirname(filePath)
+  if (dirName !== '.' && outputDir !== '.') {
+    dirName = dirName.replace(/^.*?(\/|$)/, '')
+  }
+  var outputPath = path.join(outputDir, dirName, baseName)
+
   fs.createFileSync(outputPath)
   fs.writeFileSync(outputPath, vueCode, { encoding: 'utf8' })
   var end = Date.now()

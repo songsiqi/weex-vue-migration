@@ -87,14 +87,12 @@ describe('template', () => {
   it('rewrite repeat', () => {
     const fixture = `
         <div>
-          <div repeat="items"></div>
           <div repeat="item in items"></div>
           <div repeat="{{item in items}}"></div>
           <div repeat="(key, val) in items"></div>
         </div>`
     const expected = `
         <div>
-          <div v-for="$value in items"></div>
           <div v-for="item in items"></div>
           <div v-for="item in items"></div>
           <div v-for="(val, key) in items"></div>
