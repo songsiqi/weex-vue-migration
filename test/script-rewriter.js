@@ -16,6 +16,10 @@ describe('script', () => {
     const fixture2 = `const a = self.$el('xxx');`
     const expected2 = `const a = self.$refs['xxx'];`
     assertEqual(fixture2, expected2)
+
+    const fixture3 = `const a = { a: 1 };const b = this.$el('xxx' + a.a);`
+    const expected3 = `const a = { a: 1 };const b = this.$refs['xxx' + a.a];`
+    assertEqual(fixture3, expected3)
   })
 
   it('rewrite `$dispatch` and `$broadcast` to `$emit`', () => {
