@@ -2,8 +2,8 @@ const scriptRewriter = require('../lib/script-rewriter')
 const chai = require('chai')
 const expect = chai.expect
 
-function assertEqual (fixture, expected, data, deps, elementList) {
-  const result = scriptRewriter.rewrite(fixture, { data, deps, elementList })
+function assertEqual (fixture, expected, params = {}) {
+  const result = scriptRewriter.rewrite(fixture, params)
   expect(result.code).eql(expected)
 }
 
@@ -50,7 +50,7 @@ module.exports = {
     return {
       level: 1,
       itemList: [{ id: '520421163634', title: 'title 1' }, { id: '522076777462', title: 'title 2' }]
-    }
+    };
   }
 };`
     const fixture3 = `
@@ -59,10 +59,10 @@ module.exports = {
     return {
       level: 1,
       itemList: [{ id: '520421163634', title: 'title 1' }, { id: '522076777462', title: 'title 2' }]
-    }
+    };
   }
 };`
-    const expected = `
+    const expected1 = `
 module.exports = {
   props: {
     level: {
@@ -75,9 +75,21 @@ module.exports = {
     }
   }
 };`
-    assertEqual(fixture1, expected)
-    assertEqual(fixture2, expected)
-    assertEqual(fixture3, expected)
+    const expected2 = `
+module.exports = {
+  data: function () {
+    return {
+      level: 1,
+      itemList: [{ id: '520421163634', title: 'title 1' }, { id: '522076777462', title: 'title 2' }]
+    };
+  }
+};`
+    assertEqual(fixture1, expected1)
+    assertEqual(fixture2, expected1)
+    assertEqual(fixture3, expected1)
+    assertEqual(fixture1, expected2, { isEntry: true })
+    assertEqual(fixture2, expected2, { isEntry: true })
+    assertEqual(fixture3, expected2, { isEntry: true })
   })
 
   it('rewrite `data` to `props` in `export default`', () => {
@@ -94,7 +106,7 @@ export default {
     return {
       level: 1,
       itemList: [{ id: '520421163634', title: 'title 1' }, { id: '522076777462', title: 'title 2' }]
-    }
+    };
   }
 };`
     const fixture3 = `
@@ -103,10 +115,10 @@ export default {
     return {
       level: 1,
       itemList: [{ id: '520421163634', title: 'title 1' }, { id: '522076777462', title: 'title 2' }]
-    }
+    };
   }
 };`
-    const expected = `
+    const expected1 = `
 export default {
   props: {
     level: {
@@ -119,9 +131,21 @@ export default {
     }
   }
 };`
-    assertEqual(fixture1, expected)
-    assertEqual(fixture2, expected)
-    assertEqual(fixture3, expected)
+    const expected2 = `
+export default {
+  data: function () {
+    return {
+      level: 1,
+      itemList: [{ id: '520421163634', title: 'title 1' }, { id: '522076777462', title: 'title 2' }]
+    };
+  }
+};`
+    assertEqual(fixture1, expected1)
+    assertEqual(fixture2, expected1)
+    assertEqual(fixture3, expected1)
+    assertEqual(fixture1, expected2, { isEntry: true })
+    assertEqual(fixture2, expected2, { isEntry: true })
+    assertEqual(fixture3, expected2, { isEntry: true })
   })
 
   it('rewrite `<script type="data">` to `data`', () => {
@@ -134,7 +158,7 @@ module.exports = {
   }
 };`
     const data = '{ a: 1, b: { c: 1 } }'
-    const expected = `
+    const expected1 = `
 module.exports = {
   data: function () {
     return {
@@ -151,7 +175,20 @@ module.exports = {
     }
   }
 };`
-    assertEqual(fixture, expected, data)
+    const expected2 = `
+module.exports = {
+  data: function () {
+    return {
+      dataInData: 1,
+      a: 1,
+      b: {
+        c: 1
+      }
+    };
+  }
+};`
+    assertEqual(fixture, expected1, { data })
+    assertEqual(fixture, expected2, { data, isEntry: true })
   })
 
   it('rewrite `require`, `import` and implicit deps to `components`', () => {
@@ -184,6 +221,6 @@ module.exports = {
 
   methods: {}
 };`
-    assertEqual(fixture, expected, null, deps)
+    assertEqual(fixture, expected, { deps })
   })
 })

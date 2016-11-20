@@ -7,10 +7,11 @@ const elementRewriter = require('./element-rewriter')
 /**
  * Transform from `*.we` file into `*.vue` file
  *
- * @param {string} weexCode
- * @return {string} vueCode
+ * @param {String} weexCode
+ * @param {Boolean} isEntry
+ * @return {String} vueCode
  */
-function transform (weexCode) {
+function transform (weexCode, isEntry) {
   const parserOptions = {
     treeAdapter: parse5.treeAdapters.default,
     locationInfo: true
@@ -38,7 +39,7 @@ function transform (weexCode) {
   /* istanbul ignore else */
   if (script) {
     const scriptContent = script.childNodes[0].value
-    const options = { data, deps, elementList }
+    const options = { data, deps, elementList, isEntry }
     const scriptResult = scriptRewriter.rewrite(scriptContent, options)
     script.childNodes[0].value = scriptResult.code
   }

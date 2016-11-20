@@ -94,7 +94,6 @@ function formatDepsToRequires (deps) {
  *
  * @param {Array} requires
  * @param {Array} requiresInScript
- * @return {Array} requires
  */
 function removeDuplicatedRequires (requires, requiresInScript) {
   for (let i = 0; i < requires.length; i++) {
@@ -107,7 +106,7 @@ function removeDuplicatedRequires (requires, requiresInScript) {
       }
     })
   }
-  return requires.concat(requiresInScript)
+  Array.prototype.push.apply(requires, requiresInScript)
 }
 
 /**

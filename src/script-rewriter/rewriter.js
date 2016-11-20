@@ -89,11 +89,9 @@ function rewriteEvent (path) {
  * Rewrite weex export
  *
  * @param {Node} path of `AssignmentExpression` or `ExportDefaultDeclaration`
- * @param {String} dataConfig of `<script type="data">`
- * @param {Array} requires (contain implicit `deps`)
- * @param {Array} elements
+ * @param {Object} params<data, requires, elementList, isEntry>
  */
-function rewriteExport (path, dataConfig, requires, elements) {
+function rewriteExport (path, params) {
   const { node } = path
 
   // options in `module.exports`
@@ -108,7 +106,8 @@ function rewriteExport (path, dataConfig, requires, elements) {
     node.left.property.name === 'exports' &&
     node.right.type === 'ObjectExpression'
   ) {
-    rewriteOptions(node.right.properties, dataConfig, requires, elements)
+    const { properties } = node.right
+    rewriteOptions(properties, params)
   }
 
   // options in `export default`
@@ -116,7 +115,8 @@ function rewriteExport (path, dataConfig, requires, elements) {
   else if (node.type === 'ExportDefaultDeclaration' &&
     node.declaration.type === 'ObjectExpression'
   ) {
-    rewriteOptions(node.declaration.properties, dataConfig, requires, elements)
+    const { properties } = node.declaration
+    rewriteOptions(properties, params)
   }
 }
 
@@ -124,17 +124,16 @@ function rewriteExport (path, dataConfig, requires, elements) {
  * Rewrite weex export options
  *
  * @param {Array} properties
- * @param {String} dataConfig of `<script type="data">`
- * @param {Array} requires (contain implicit `deps`)
- * @param {Array} elements
+ * @param {Object} params<data, requires, elementList, isEntry>
  */
-function rewriteOptions (properties, dataConfig, requires, elements) {
-  rewriteDataToProps(properties)
-  if (dataConfig) {
-    rewriteDataConfig(properties, dataConfig)
+function rewriteOptions (properties, params) {
+  const { data, requires, elementList, isEntry } = params
+  rewriteDataOptions(properties, isEntry)
+  if (data) {
+    rewriteDataConfig(properties, data, isEntry)
   }
-  if ((requires && requires.length) || (elements && elements.length)) {
-    insertComponents(properties, requires, elements)
+  if ((requires && requires.length) || (elementList && elementList.length)) {
+    insertComponents(properties, requires, elementList)
   }
 }
 
@@ -160,9 +159,9 @@ function rewriteOptions (properties, dataConfig, requires, elements) {
  *
  * @param  {Array} properties
  * @param  {Array} requires
- * @param  {Array} elements
+ * @param  {Array} elementList
  */
-function insertComponents (properties, requires, elements) {
+function insertComponents (properties, requires, elementList) {
   const components = requires.map((dep) => {
     let key = Path.basename(dep, '.vue')
     key = util.hyphenedToCamelCase(key)
@@ -177,7 +176,7 @@ function insertComponents (properties, requires, elements) {
 
   const ast = t.ObjectProperty(
     t.Identifier('components'),
-    t.ObjectExpression(components.concat(elements))
+    t.ObjectExpression(components.concat(elementList))
   )
   properties.unshift(ast)
 }
@@ -200,8 +199,9 @@ function insertComponents (properties, requires, elements) {
  *
  * @param {Array} properties
  * @param {String} dataConfig of `<script type="data">`
+ * @param {Boolean} isEntry
  */
-function rewriteDataConfig (properties, dataConfig) {
+function rewriteDataConfig (properties, dataConfig, isEntry) {
   const buildData = template(`
     function data () { return ${dataConfig}; }
   `)
@@ -212,11 +212,42 @@ function rewriteDataConfig (properties, dataConfig) {
     t.Identifier('data'),
     dataFucAst
   )
-  properties.unshift(ast)
+  const dataAst = dataFucAst.body.body[0].argument.properties
+
+  let dataInserted = false
+
+  // Find `data: function () { return { ... } }` and insert dataConfig
+  if (isEntry) {
+    properties.forEach((property) => {
+      if (property.type === 'ObjectProperty' &&
+        property.key.name === 'data' &&
+        property.value.type === 'FunctionExpression' &&
+        property.value.body &&
+        property.value.body.type === 'BlockStatement' &&
+        property.value.body.body &&
+        property.value.body.body.length
+      ) {
+        property.value.body.body.forEach((statement) => {
+          /* istanbul ignore else */
+          if (statement.type === 'ReturnStatement' &&
+            statement.argument.type === 'ObjectExpression' &&
+            statement.argument.properties
+          ) {
+            dataInserted = true
+            Array.prototype.push.apply(statement.argument.properties, dataAst)
+          }
+        })
+      }
+    })
+  }
+
+  if (!dataInserted && dataAst.length) {
+    properties.unshift(ast)
+  }
 }
 
 /**
- * Rewrite `data` to `props`
+ * Rewrite `data` options
  *
  * Weex:
  *  module.exports = {
@@ -241,7 +272,7 @@ function rewriteDataConfig (properties, dataConfig) {
  *      }
  *    }
  *  }
- * Vue:
+ * Vue (entry file):
  *  module.exports = {
  *    props: {
  *      num: { default: 1 },
@@ -252,22 +283,30 @@ function rewriteDataConfig (properties, dataConfig) {
  *      }
  *    }
  *  }
+ * Vue (non-entry file):
+ *  module.exports = {
+ *    data: function () {
+ *      return {
+ *        num: 1,
+ *        obj: { a: 1 }
+ *      }
+ *    }
+ *  }
  *
  *  So does `export default`
  *
  * @param {Array} properties
+ * @param {Boolean} isEntry
  */
-function rewriteDataToProps (properties) {
+function rewriteDataOptions (properties, isEntry) {
   properties.forEach((property) => {
-    if (property.type === 'ObjectProperty' &&
-      property.key.name === 'data'
-    ) {
+    if (property.type === 'ObjectProperty' && property.key.name === 'data') {
       // case 1: `data: { ... }`
       if (property.value.type === 'ObjectExpression' &&
         property.value.properties &&
         property.value.properties.length
       ) {
-        rewriteDataNode(property, property.value.properties)
+        rewriteDataNode(property, property.value.properties, isEntry)
       }
 
       // case 2: `data: function () { return { ... } }`
@@ -285,7 +324,7 @@ function rewriteDataToProps (properties) {
             statement.argument.properties &&
             statement.argument.properties.length
           ) {
-            rewriteDataNode(property, statement.argument.properties)
+            rewriteDataNode(property, statement.argument.properties, isEntry)
           }
         })
       }
@@ -309,7 +348,7 @@ function rewriteDataToProps (properties) {
             statement.argument.properties &&
             statement.argument.properties.length
           ) {
-            rewriteDataNode(property, statement.argument.properties)
+            rewriteDataNode(property, statement.argument.properties, isEntry)
           }
         })
       }
@@ -318,40 +357,58 @@ function rewriteDataToProps (properties) {
 }
 
 /**
- * Change `data` node to `props` node
+ * Rewrite `data` node
  *
  * @param {Node} property
  * @param {Array} data
+ * @param {Boolean} isEntry
  */
-function rewriteDataNode (property, data) {
-  data.forEach((prop) => {
-    let defaultValue = prop.value
+function rewriteDataNode (property, data, isEntry) {
+  // Format to `data: function () { return { ... } }`
+  if (isEntry) {
+    property.value = t.FunctionExpression(
+      null,
+      [],
+      t.BlockStatement(
+        [t.ReturnStatement(
+          t.ObjectExpression(data)
+        )]
+      )
+    )
+  }
 
-    // object/array defaults should be returned from a factory function
-    if (defaultValue.type === 'ObjectExpression' ||
-      defaultValue.type === 'ArrayExpression'
-    ) {
-      defaultValue = t.FunctionExpression(
-        null,
-        [],
-        t.BlockStatement(
-          [t.ReturnStatement(defaultValue)]
+  // Rewrite `data` node to `props` node
+  else {
+    data.forEach((prop) => {
+      let defaultValue = prop.value
+
+      // object/array defaults should be returned from a factory function
+      if (defaultValue.type === 'ObjectExpression' ||
+        defaultValue.type === 'ArrayExpression'
+      ) {
+        defaultValue = t.FunctionExpression(
+          null,
+          [],
+          t.BlockStatement(
+            [t.ReturnStatement(defaultValue)]
+          )
         )
-      )
-    }
+      }
 
-    prop.value = t.ObjectExpression([
-      t.ObjectProperty(
-        t.Identifier('default'),
-        defaultValue
-      )
-    ])
-  })
+      prop.value = t.ObjectExpression([
+        t.ObjectProperty(
+          t.Identifier('default'),
+          defaultValue
+        )
+      ])
+    })
+
+    property.key.name = 'props'
+    property.value = t.ObjectExpression(data)
+  }
 
   property.type = 'ObjectProperty'
-  property.key.name = 'props'
   property.kind = null
-  property.value = t.ObjectExpression(data)
 }
 
 /**

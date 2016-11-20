@@ -7,20 +7,20 @@ var chalk = require('chalk')
 var path = require('path')
 var fs = require('fs-extra')
 
-function walkDir (filePath) {
+function walkDir (filePath, entryPaths) {
   var stat = fs.statSync(filePath)
   if (stat.isDirectory()) {
     var children = fs.readdirSync(filePath) || []
     children.forEach(function (child) {
-      walkDir(path.join(filePath, child))
+      walkDir(path.join(filePath, child), entryPaths)
     })
   }
   else {
-    processFile(filePath)
+    processFile(filePath, entryPaths)
   }
 }
 
-function processFile (filePath) {
+function processFile (filePath, entryPaths) {
   var extName = path.extname(filePath)
   if (extName !== '.we') {
     return
@@ -28,15 +28,16 @@ function processFile (filePath) {
 
   var start = Date.now()
   var weexCode = fs.readFileSync(filePath, { encoding: 'utf8' })
-  var vueCode = migrater.transform(weexCode)
+  var absoluteFilePath = path.resolve(process.cwd(), filePath)
+  var isEntry = entryPaths.indexOf(absoluteFilePath) > -1
+  var vueCode = migrater.transform(weexCode, isEntry)
 
-  var outputDir = program.output || '.'
   var baseName = path.basename(filePath, extName) + '.vue'
   var dirName = path.dirname(filePath)
-  if (dirName !== '.' && outputDir !== '.') {
+  if (dirName !== '.' && program.output !== '.') {
     dirName = dirName.replace(/^.*?(\/|$)/, '')
   }
-  var outputPath = path.join(outputDir, dirName, baseName)
+  var outputPath = path.join(program.output, dirName, baseName)
 
   fs.createFileSync(outputPath)
   fs.writeFileSync(outputPath, vueCode, { encoding: 'utf8' })
@@ -50,7 +51,8 @@ function processFile (filePath) {
 
 function migrate () {
   program.version(pkg.version)
-    .option('-o, --output [path]', 'the output file dirname')
+    .option('-e, --entry [file list]', 'the entry file list, separated by comma `,`', '')
+    .option('-o, --output [path]', 'the output file dirname, default: .', '.')
     .parse(process.argv)
 
   var start = Date.now()
@@ -58,8 +60,12 @@ function migrate () {
     console.log(chalk.yellow.bold('[Info]: ') + 'No files to process!')
   }
   else {
+    var entryPaths = program.entry ? program.entry.split(',') : []
+    entryPaths = entryPaths.map((filePath) => {
+      return path.resolve(process.cwd(), filePath)
+    })
     program.args.forEach(function (filePath) {
-      walkDir(filePath)
+      walkDir(filePath, entryPaths)
     })
   }
   var end = Date.now()
