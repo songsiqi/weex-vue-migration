@@ -19,7 +19,8 @@ npm install weex-vue-migration
 
     -h, --help               output usage information
     -V, --version            output the version number
-    -o, --output [path]      the output file dirname
+    -e, --entry [path]       entry files, separated by comma `,`
+    -o, --output [path]      output file dirname
 ```
 
 ### API

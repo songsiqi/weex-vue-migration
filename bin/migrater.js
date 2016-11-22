@@ -51,8 +51,8 @@ function processFile (filePath, entryPaths) {
 
 function migrate () {
   program.version(pkg.version)
-    .option('-e, --entry [file list]', 'the entry file list, separated by comma `,`', '')
-    .option('-o, --output [path]', 'the output file dirname, default: .', '.')
+    .option('-e, --entry [path]', 'entry files, separated by comma `,`', '')
+    .option('-o, --output [path]', 'output file dirname, default: .', '.')
     .parse(process.argv)
 
   var start = Date.now()

@@ -19,6 +19,10 @@ function rewrite (node, deps = []) {
 
   const { nodeName } = node
 
+  if (nodeName[0] !== '#' && deps.indexOf(nodeName) === -1) {
+    deps.push(nodeName)
+  }
+
   switch (nodeName) {
     case 'content':
       rewriter.rewriteContentTag(node)
@@ -28,10 +32,6 @@ function rewrite (node, deps = []) {
       break
     default:
       break
-  }
-
-  if (nodeName[0] !== '#' && deps.indexOf(nodeName) === -1) {
-    deps.push(nodeName)
   }
 
   const attrs = node.attrs || []
