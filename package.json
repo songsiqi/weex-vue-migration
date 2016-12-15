@@ -5,7 +5,7 @@
   "author": "songsiqi <songsiqi2006@126.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/weexteam/weex-vue-migration.git"
+    "url": "https://github.com/songsiqi/weex-vue-migration.git"
   },
   "main": "index.js",
   "bin": {

@@ -2,7 +2,8 @@ const scriptRewriter = require('../lib/script-rewriter')
 const chai = require('chai')
 const expect = chai.expect
 
-function assertEqual (fixture, expected, params = {}) {
+function assertEqual (fixture, expected, params) {
+  params = params || {}
   const result = scriptRewriter.rewrite(fixture, params)
   expect(result.code).eql(expected)
 }

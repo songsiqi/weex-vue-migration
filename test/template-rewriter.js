@@ -63,7 +63,7 @@ describe('template', () => {
     const expected = `
         <div>
           <div style="color: #f00; background-color: rgba(0, 0, 0, 0.7);"></div>
-          <div :style="{ backgroundColor: 'red'; height: height; color: active?'#f00':'#0f0' }"></div>
+          <div :style="{ backgroundColor: 'red', height: height, color: active?'#f00':'#0f0' }"></div>
         </div>`
     assertDomString(fixture, expected)
   })

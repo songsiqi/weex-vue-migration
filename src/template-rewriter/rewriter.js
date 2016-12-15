@@ -154,7 +154,7 @@ function rewriteStyle (attrs, i) {
     if (hasBinding) {
       const newAttr = {
         name: ':style',
-        value: '{ ' + styleList.join('; ') + ' }'
+        value: '{ ' + styleList.join(', ') + ' }'
       }
       attrs.splice(i, 1, newAttr)
     }

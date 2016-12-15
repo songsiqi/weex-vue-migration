@@ -1,5 +1,19 @@
 # weex-vue-migration
 
+[![NPM version][npm-image]][npm-url]
+[![Build status][travis-image]][travis-url]
+[![Test coverage][coveralls-image]][coveralls-url]
+[![Downloads][downloads-image]][downloads-url]
+
+[npm-image]: https://img.shields.io/npm/v/weex-vue-migration.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/weex-vue-migration
+[travis-image]: https://img.shields.io/travis/songsiqi/weex-vue-migration.svg?style=flat-square
+[travis-url]: https://travis-ci.org/songsiqi/weex-vue-migration
+[coveralls-image]: https://img.shields.io/coveralls/songsiqi/weex-vue-migration.svg?style=flat-square
+[coveralls-url]: https://coveralls.io/r/songsiqi/weex-vue-migration
+[downloads-image]: http://img.shields.io/npm/dm/weex-vue-migration.svg?style=flat-square
+[downloads-url]: https://npmjs.org/package/weex-vue-migration
+
 Migration from *.we file to *.vue file.
 
 ## Install
@@ -25,7 +39,7 @@ npm install weex-vue-migration
 
 ### API
 
-#### `transform(weexCode)`
+#### `transform(weexCode, isEntry)`
 
 ```javascript
 var migrater = require('weex-vue-migration')
@@ -56,106 +70,3 @@ Babel plugins:
 * http://babeljs.io/docs/usage/api/
 * https://github.com/babel/babel/tree/master/packages/babel-types
 * https://github.com/thejameskyle/babel-handbook/blob/master/translations/zh-Hans/README.md
-
-## TODO
-
-* Rewrite `$el` to `$refs`
-
-```
-// Weex:
-this.$el('xxx')
-
-// Vue:
-this.$refs.xxx
-this.$refs['xxx']
-
-// Some special cases:
-const $el = this.$el
-$el('xxx')
-const $ = this.$el
-const self = this
-```
-
-* Rewrite `data` to `props`
-
-```
-// Weex:
-data: {
-  num: 1,
-  obj: { a: 1 }
-}
-
-// Vue:
-props: {
-  num: { default: 1 },
-  obj: {
-    default: function () {
-      return { a: 1 }
-    }
-  }
-}
-
-// Special case:
-These exist other statements before `return` of `data: function () { return { ... } }` or `data() { return { ... } }`.
-```
-
-* Rewrite `require` and `import`
-
-```
-// Weex:
-require('weex-components')
-require('weex-components/wxc-button.we')
-import 'weex-components/wxc-countdown.we'
-
-// Vue:
-components: {
-  wxcButton: require('weex-vue-components/button.vue'),
-  wxcCountdown: require('weex-vue-components/countdown.vue')
-}
-
-// Special case:
-Some `require` or `import` statements locate after `module.exports` or `export default`.
-```
-
-* Rewrite `<script>` whose type is `data` and `config`
-
-```
-// Weex:
-<script type="data"></script>
-<script type="config"></script>
-
-// Vue:
-data: {}
-
-// TODO:
-Only transform `data` of the root component, and `config` is now ignored.
-```
-
-* Rewrite `<element>`
-
-```
-// Weex:
-<element name="xx"></element>
-
-// Vue:
-components: {
-  xx: { ... }
-}
-
-// Special case:
-There exist some statements before `module.exports` or `export default`.
-```
-
-* Rewrite `$dispatch` and `$broadcast`
-
-```
-// Weex:
-$dispatch()
-$broadcast()
-
-// Vue:
-$emit()
-
-// TODO:
-This is not fully equivalent, so still have to hand-tune the code.
-```
