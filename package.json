@@ -1,6 +1,6 @@
 {
   "name": "weex-vue-migration",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "migration from *.we file to *.vue file",
   "author": "songsiqi <songsiqi2006@126.com>",
   "repository": {
