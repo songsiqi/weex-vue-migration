@@ -21,7 +21,7 @@
 
 <element name="top-banner">
   <template>
-    <div class="benner">
+    <div class="banner">
       <img src="{{src}}">
     </div>
   </template>
@@ -39,7 +39,7 @@
 
 <element name="bottom-banner">
   <template>
-    <div class="benner">
+    <div class="banner">
       <img src="{{src}}">
     </div>
   </template>

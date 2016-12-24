@@ -1,5 +1,8 @@
 const exp = require('./exp')
-const util = require('../util')
+const {
+  hyphenedToCamelCase,
+  shouldAppendNativeModifier
+} = require('../util')
 
 /**
  * Rewrite `<content>` tag
@@ -138,7 +141,7 @@ function rewriteStyle (attrs, i) {
       const colonIndex = declaration.indexOf(':')
       if (colonIndex > -1) {
         let k = declaration.slice(0, colonIndex).trim()
-        k = util.hyphenedToCamelCase(k)
+        k = hyphenedToCamelCase(k)
         let v = declaration.slice(colonIndex + 1).trim()
         if (exp.isExpr(v)) {
           hasBinding = true
@@ -250,7 +253,7 @@ function rewriteRepeat (attrs, i) {
 function rewriteEvent (tagName, attrs, i) {
   const value = attrs[i].value.trim()
   let name = attrs[i].name.slice(2)
-  if (util.shouldAppendNativeModifier(tagName, name)) {
+  if (shouldAppendNativeModifier(tagName, name)) {
     name = `${name}.native`
   }
   const newAttr = {

@@ -9,7 +9,7 @@
   },
   "main": "index.js",
   "bin": {
-    "weex-vue-migrate": "./bin/migrater.js"
+    "weex-vue-migrate": "./bin/migrator.js"
   },
   "license": "GPL-3.0",
   "keywords": [

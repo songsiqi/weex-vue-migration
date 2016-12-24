@@ -60,7 +60,7 @@ function normalizeTextNode (result, type, childNodes, i) {
  * @param {Object} result
  */
 function fixScript (doc, result) {
-  // FIXME: ensure there exists a `<script>` for `<element>` or implicit deps
+  // FIXME: ensure there exists a `<script>` for implicit deps
   if (!result.script) {
     const treeAdapter = parse5.treeAdapters.default
     const namespaceUrl = 'http://www.w3.org/1999/xhtml'

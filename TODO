@@ -72,21 +72,6 @@ data: {}
 Only transform `data` of the root component, and `config` is now ignored.
 ```
 
-* Rewrite `<element>`
-
-```
-// Weex:
-<element name="xx"></element>
-
-// Vue:
-components: {
-  xx: { ... }
-}
-
-// Special case:
-There exist some statements before `module.exports` or `export default`.
-```
-
 * Rewrite `$dispatch` and `$broadcast`
 
 ```

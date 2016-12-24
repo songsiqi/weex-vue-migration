@@ -43,7 +43,7 @@ npm install weex-vue-migration
 
 ```javascript
 var migrater = require('weex-vue-migration')
-var vueCode = migrater.transform(weexCode)
+var result = migrater.transform(weexCode)
 ```
 
 params:
@@ -52,7 +52,11 @@ params:
 
 returns:
 
-* `vueCode`: string, vue DSL code
+* `result`: object, result
+  * `content`: string, vue DSL code
+  * `elements`: array, list of elements object
+    * `name`: string, name of `<element>`
+    * `content`: string, vue DSL code of `<element>`
 
 ## License
 

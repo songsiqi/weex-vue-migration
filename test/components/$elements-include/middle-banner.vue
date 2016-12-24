@@ -1,10 +1,4 @@
-<template>
-  <div>
-    <middle-banner></middle-banner>
-  </div>
-</template>
 
-<element name="middle-banner">
   <template>
     <div class="banner">
       <img src="//gw.alicdn.com/imgextra/i1/2927210366/TB22qwdXhaK.eBjSZFwXXXjsFXa-2927210366.jpg">
@@ -13,4 +7,5 @@
   <style>
     .banner { width: 100; height: 100; }
   </style>
-</element>
+<script>
+module.exports = {};</script>

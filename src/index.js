@@ -2,25 +2,28 @@ const parse5 = require('parse5')
 const block = require('./block')
 const templateRewriter = require('./template-rewriter')
 const scriptRewriter = require('./script-rewriter')
-const elementRewriter = require('./element-rewriter')
+const { ELEMENT_PATH } = require('./util')
 
 /**
  * Transform from `*.we` file into `*.vue` file
  *
- * @param {String} weexCode
+ * @param {Node|String} weexCode
  * @param {Boolean} isEntry
- * @return {String} vueCode
+ * @return {Object} result<content, elements>
  */
 function transform (weexCode, isEntry) {
-  const parserOptions = {
-    treeAdapter: parse5.treeAdapters.default,
-    locationInfo: true
+  let doc = weexCode
+  if (typeof doc === 'string') {
+    const parserOptions = {
+      treeAdapter: parse5.treeAdapters.default,
+      locationInfo: true
+    }
+    doc = parse5.parseFragment(doc, parserOptions)
   }
-  const doc = parse5.parseFragment(weexCode, parserOptions)
   const { template, script, data, elements } = block(doc)
 
   let deps = []
-  let elementList = []
+  const elementList = []
 
   /* istanbul ignore else */
   if (template) {
@@ -28,24 +31,33 @@ function transform (weexCode, isEntry) {
   }
 
   if (elements && elements.length) {
-    elementList = elements.map((element) => {
-      return elementRewriter.rewrite(element, deps)
-    })
     deps = deps.filter((dep) => {
-      return elementList.map((element) => element.name).indexOf(dep) === -1
+      return elements.map((element) => element.name).indexOf(dep) === -1
+    })
+    elements.forEach((element) => {
+      elementList.push({
+        name: element.name,
+        content: transform(element, false).content
+      })
     })
   }
 
   /* istanbul ignore else */
   if (script) {
     const scriptContent = script.childNodes[0].value
-    const options = { data, deps, elementList, isEntry }
+    const options = { data, deps, elements, isEntry }
     const scriptResult = scriptRewriter.rewrite(scriptContent, options)
     script.childNodes[0].value = scriptResult.code
   }
 
   const vueCode = parse5.serialize(doc)
-  return vueCode
+  return {
+    content: vueCode,
+    elements: elementList
+  }
 }
 
-exports.transform = transform
+module.exports = {
+  ELEMENT_PATH,
+  transform
+}

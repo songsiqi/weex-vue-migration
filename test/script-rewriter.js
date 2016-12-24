@@ -192,7 +192,7 @@ module.exports = {
     assertEqual(fixture, expected2, { data, isEntry: true })
   })
 
-  it('rewrite `require`, `import` and implicit deps to `components`', () => {
+  it('rewrite `require`, `import`, elements and implicit deps to `components`', () => {
     const fixture = `
 var a = 'xxx';
 var itemA = require('path/to/item-a.we');
@@ -205,6 +205,7 @@ module.exports = {
   methods: {}
 };`
     const deps = ['top-banner', 'bottom-banner', 'wxc-button']
+    const elements = [{ name: 'item-e' }]
     const expected = `
 var a = 'xxx';
 
@@ -214,6 +215,7 @@ module.exports = {
     topBanner: require('./top-banner.vue'),
     bottomBanner: require('./bottom-banner.vue'),
     wxcButton: require('weex-vue-components/button.vue'),
+    itemE: require('./$elements-include/item-e.vue'),
     itemA: require('path/to/item-a.vue'),
     itemB: require('path/to/item-b.vue'),
     itemC: require('path/to/item-c.vue'),
@@ -222,6 +224,6 @@ module.exports = {
 
   methods: {}
 };`
-    assertEqual(fixture, expected, { deps })
+    assertEqual(fixture, expected, { deps, elements })
   })
 })

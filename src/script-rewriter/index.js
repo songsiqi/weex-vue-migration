@@ -1,24 +1,29 @@
 const babel = require('babel-core')
 const rewriter = require('./rewriter')
-const util = require('../util')
+const {
+  formatDepsToRequires,
+  formatElementsToRequires,
+  removeDuplicatedRequires
+} = require('../util')
 
 /**
  * Rewrite `<script>`
  *
  * @param {String} `<script>` code
- * @param {Object} params<data, deps, elementList, isEntry>
+ * @param {Object} params<data, deps, elements, isEntry>
  * @return {Object} result<code, map, ast>
  */
-function rewrite (code, { data, deps = [], elementList = [], isEntry }) {
-  const requires = util.formatDepsToRequires(deps)
-  const params = { data, requires, elementList, isEntry }
+function rewrite (code, { data, deps = [], elements = [], isEntry }) {
+  const requires = formatDepsToRequires(deps)
+  Array.prototype.push.apply(requires, formatElementsToRequires(elements))
+  const params = { data, requires, isEntry }
 
   const visitor = {
     CallExpression (path) {
       rewriter.rewriteEl(path)
       rewriter.rewriteEvent(path)
       const requiresInScript = rewriter.rewriteRequire(path)
-      util.removeDuplicatedRequires(requires, requiresInScript)
+      removeDuplicatedRequires(requires, requiresInScript)
     },
 
     AssignmentExpression (path) {
@@ -31,7 +36,7 @@ function rewrite (code, { data, deps = [], elementList = [], isEntry }) {
 
     ImportDeclaration (path) {
       const requiresInScript = rewriter.rewriteImport(path)
-      util.removeDuplicatedRequires(requires, requiresInScript)
+      removeDuplicatedRequires(requires, requiresInScript)
     }
   }
 

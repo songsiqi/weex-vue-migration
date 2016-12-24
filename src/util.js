@@ -79,11 +79,20 @@ const builtinEvents = [
 function formatDepsToRequires (deps) {
   return deps
     .filter((dep) => builtinTags.indexOf(dep) === -1)
-    .map((dep) => {
-      return wxcTags.indexOf(dep) > -1 ?
-        `weex-vue-components/${dep}.vue` :
-        `./${dep}.vue`
-    })
+    .map((dep) => wxcTags.indexOf(dep) > -1 ?
+      `weex-vue-components/${dep}.vue` : `./${dep}.vue`
+    )
+}
+
+/**
+ * Format elements to requires
+ *
+ * @param {Array} elements
+ * @return {Array} customComponents
+ */
+const ELEMENT_PATH = '$elements-include'
+function formatElementsToRequires (elements) {
+  return elements.map((element) => `./${ELEMENT_PATH}/${element.name}.vue`)
 }
 
 /**
@@ -125,6 +134,8 @@ function shouldAppendNativeModifier (tagName, eventName) {
 module.exports = {
   hyphenedToCamelCase,
   formatDepsToRequires,
+  formatElementsToRequires,
   removeDuplicatedRequires,
-  shouldAppendNativeModifier
+  shouldAppendNativeModifier,
+  ELEMENT_PATH
 }

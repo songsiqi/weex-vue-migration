@@ -1,7 +1,7 @@
 const Path = require('path')
 const t = require('babel-types')
 const template = require('babel-template')
-const util = require('../util')
+const { hyphenedToCamelCase } = require('../util')
 
 /**
  * Rewrite `$el` to `$refs`
@@ -89,7 +89,7 @@ function rewriteEvent (path) {
  * Rewrite weex export
  *
  * @param {Node} path of `AssignmentExpression` or `ExportDefaultDeclaration`
- * @param {Object} params<data, requires, elementList, isEntry>
+ * @param {Object} params<data, requires, isEntry>
  */
 function rewriteExport (path, params) {
   const { node } = path
@@ -124,16 +124,16 @@ function rewriteExport (path, params) {
  * Rewrite weex export options
  *
  * @param {Array} properties
- * @param {Object} params<data, requires, elementList, isEntry>
+ * @param {Object} params<data, requires, isEntry>
  */
 function rewriteOptions (properties, params) {
-  const { data, requires, elementList, isEntry } = params
+  const { data, requires, isEntry } = params
   rewriteDataOptions(properties, isEntry)
   if (data) {
     rewriteDataConfig(properties, data, isEntry)
   }
-  if ((requires && requires.length) || (elementList && elementList.length)) {
-    insertComponents(properties, requires, elementList)
+  if (requires && requires.length) {
+    insertComponents(properties, requires)
   }
 }
 
@@ -147,24 +147,19 @@ function rewriteOptions (properties, params) {
  *  <element name="item-d"></element>
  * Vue:
  *  components: {
- *    itemA: require('weex-vue-components/item-a.vue'),
+ *    itemA: require('./item-a.vue'),
  *    itemB: require('weex-vue-components/item-b.vue'),
  *    itemC: require('weex-vue-components/item-c.vue'),
- *    itemD: {
- *      templete: '...',
- *      style: '...',
- *      ...
- *    }
+ *    itemD: require('./$elements-include/item-d.vue')
  *  }
  *
  * @param  {Array} properties
  * @param  {Array} requires
- * @param  {Array} elementList
  */
-function insertComponents (properties, requires, elementList) {
+function insertComponents (properties, requires) {
   const components = requires.map((dep) => {
     let key = Path.basename(dep, '.vue')
-    key = util.hyphenedToCamelCase(key)
+    key = hyphenedToCamelCase(key)
     return t.ObjectProperty(
       t.Identifier(key),
       t.CallExpression(
@@ -176,7 +171,7 @@ function insertComponents (properties, requires, elementList) {
 
   const ast = t.ObjectProperty(
     t.Identifier('components'),
-    t.ObjectExpression(components.concat(elementList))
+    t.ObjectExpression(components)
   )
   properties.unshift(ast)
 }

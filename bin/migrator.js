@@ -2,7 +2,7 @@
 
 var program = require('commander')
 var pkg = require('../package.json')
-var migrater = require('../')
+var migrator = require('../')
 var chalk = require('chalk')
 var path = require('path')
 var fs = require('fs-extra')
@@ -30,7 +30,7 @@ function processFile (filePath, entryPaths) {
   var weexCode = fs.readFileSync(filePath, { encoding: 'utf8' })
   var absoluteFilePath = path.resolve(process.cwd(), filePath)
   var isEntry = entryPaths.indexOf(absoluteFilePath) > -1
-  var vueCode = migrater.transform(weexCode, isEntry)
+  var result = migrator.transform(weexCode, isEntry)
 
   var baseName = path.basename(filePath, extName) + '.vue'
   var dirName = path.dirname(filePath)
@@ -38,9 +38,16 @@ function processFile (filePath, entryPaths) {
     dirName = dirName.replace(/^.*?(\/|$)/, '')
   }
   var outputPath = path.join(program.output, dirName, baseName)
-
   fs.createFileSync(outputPath)
-  fs.writeFileSync(outputPath, vueCode, { encoding: 'utf8' })
+  fs.writeFileSync(outputPath, result.content, { encoding: 'utf8' })
+
+  result.elements.forEach((element) => {
+    var baseName = path.join(migrator.ELEMENT_PATH, element.name + '.vue')
+    var outputPath = path.join(program.output, dirName, baseName)
+    fs.createFileSync(outputPath)
+    fs.writeFileSync(outputPath, element.content, { encoding: 'utf8' })
+  })
+
   var end = Date.now()
   var info = chalk.green.bold('[Success]: ') +
     'Migrate ' + filePath +
