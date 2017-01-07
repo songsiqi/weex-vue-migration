@@ -28,13 +28,13 @@ function rewriteEl (path) {
   ) {
     const objectExp = node.callee.object.type === 'ThisExpression' ?
       t.ThisExpression() :
-      t.identifier(node.callee.object.name)
+      t.Identifier(node.callee.object.name)
 
     path.replaceWith(
       t.MemberExpression(
         t.MemberExpression(
           objectExp,
-          t.identifier('$refs')
+          t.Identifier('$refs')
         ),
         node.arguments[0],
         true
@@ -71,13 +71,13 @@ function rewriteEvent (path) {
   ) {
     const objectExp = node.callee.object.type === 'ThisExpression' ?
       t.ThisExpression() :
-      t.identifier(node.callee.object.name)
+      t.Identifier(node.callee.object.name)
 
     path.replaceWith(
       t.callExpression(
         t.MemberExpression(
           objectExp,
-          t.identifier('$emit')
+          t.Identifier('$emit')
         ),
         node.arguments
       )
@@ -495,6 +495,14 @@ function rewriteRequire (path) {
     }
     else if (value === 'weex-components') {
       removeRequire()
+    }
+    else if (value === '@weex-module/dom') {
+      // rewrite `require('@weex-module/dom')` to `weex.require('dom')`
+      node.callee = t.MemberExpression(
+        t.Identifier('weex'),
+        t.Identifier('require')
+      )
+      node.arguments[0].value = 'dom'
     }
   }
 

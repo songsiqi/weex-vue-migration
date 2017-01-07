@@ -250,8 +250,10 @@ module.exports = {
   it('rewrite `require`, `import`, elements and implicit deps to `components`', () => {
     const fixture = `
 var a = 'xxx';
+var dom = require('@weex-module/dom');
 var itemA = require('path/to/item-a.we');
 require('path/to/item-b.we');
+require('../polyfill.js');
 import 'weex-components';
 import itemC from 'path/to/item-c.we';
 import 'path/to/item-d.we';
@@ -263,6 +265,9 @@ module.exports = {
     const elements = [{ name: 'item-e' }]
     const expected = `
 var a = 'xxx';
+var dom = weex.require('dom');
+
+require('../polyfill.js');
 
 import { throttle } from './util.js';
 module.exports = {
