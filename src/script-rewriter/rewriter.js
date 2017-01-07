@@ -129,6 +129,7 @@ function rewriteExport (path, params) {
 function rewriteOptions (properties, params) {
   const { data, requires, isEntry } = params
   rewriteDataOptions(properties, isEntry)
+  rewriteReady(properties)
   if (data) {
     rewriteDataConfig(properties, data, isEntry)
   }
@@ -288,7 +289,7 @@ function rewriteDataConfig (properties, dataConfig, isEntry) {
  *    }
  *  }
  *
- *  So does `export default`
+ * So does `export default`
  *
  * @param {Array} properties
  * @param {Boolean} isEntry
@@ -352,6 +353,62 @@ function rewriteDataOptions (properties, isEntry) {
 }
 
 /**
+ * Rewrite `ready` method to `mounted` method
+ *
+ * Weex:
+ *  module.exports = {
+ *    ready: function () {
+ *      this.init();
+ *    }
+ *  };
+ *  module.exports = {
+ *    ready() {
+ *      this.init();
+ *    }
+ *  };
+ * Vue:
+ *  module.exports = {
+ *    mounted: function () {
+ *      this.init();
+ *    }
+ *  };
+ *  module.exports = {
+ *    mounted() {
+ *      this.init();
+ *    }
+ *  };
+ *
+ * So does `export default`
+ *
+ * @param  {Array} properties
+ */
+function rewriteReady (properties) {
+  properties.forEach((property) => {
+    if (
+      // case 1: `ready: function () { ... }`
+      (property.type === 'ObjectProperty' &&
+      property.key.name === 'ready' &&
+      property.value.type === 'FunctionExpression' &&
+      property.value.body &&
+      property.value.body.type === 'BlockStatement' &&
+      property.value.body.body &&
+      property.value.body.body.length) ||
+      // case 2: `ready() { ... }`
+      (property.type === 'ObjectMethod' &&
+      property.kind === 'method' &&
+      property.key.name === 'ready' &&
+      property.body &&
+      property.body.type === 'BlockStatement' &&
+      property.body.body &&
+      property.body.body.length
+    )) {
+      property.key.name = 'mounted'
+      property.key.loc.identifierName = 'mounted'
+    }
+  })
+}
+
+/**
  * Rewrite `data` node
  *
  * @param {Node} property
@@ -399,6 +456,7 @@ function rewriteDataNode (property, data, isEntry) {
     })
 
     property.key.name = 'props'
+    property.key.loc.identifierName = 'props'
     property.value = t.ObjectExpression(data)
   }
 

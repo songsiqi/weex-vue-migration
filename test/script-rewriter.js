@@ -149,6 +149,61 @@ export default {
     assertEqual(fixture3, expected2, { isEntry: true })
   })
 
+  it('rewrite `ready` to `mounted`', () => {
+    const fixture1 = `
+module.exports = {
+  ready: function () {
+    this.init();
+  }
+};`
+    const fixture2 = `
+module.exports = {
+  ready() {
+    this.init();
+  }
+};`
+    const fixture3 = `
+export default {
+  ready: function () {
+    this.init();
+  }
+};`
+    const fixture4 = `
+export default {
+  ready() {
+    this.init();
+  }
+};`
+    const expected1 = `
+module.exports = {
+  mounted: function () {
+    this.init();
+  }
+};`
+    const expected2 = `
+module.exports = {
+  mounted() {
+    this.init();
+  }
+};`
+    const expected3 = `
+export default {
+  mounted: function () {
+    this.init();
+  }
+};`
+    const expected4 = `
+export default {
+  mounted() {
+    this.init();
+  }
+};`
+    assertEqual(fixture1, expected1)
+    assertEqual(fixture2, expected2)
+    assertEqual(fixture3, expected3)
+    assertEqual(fixture4, expected4)
+  })
+
   it('rewrite `<script type="data">` to `data`', () => {
     const fixture = `
 module.exports = {
