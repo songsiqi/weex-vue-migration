@@ -154,8 +154,8 @@ function rewriteOptions (properties, params) {
  *    itemD: require('./$elements-include/item-d.vue')
  *  }
  *
- * @param  {Array} properties
- * @param  {Array} requires
+ * @param {Array} properties
+ * @param {Array} requires
  */
 function insertComponents (properties, requires) {
   const components = requires.map((dep) => {
@@ -380,7 +380,7 @@ function rewriteDataOptions (properties, isEntry) {
  *
  * So does `export default`
  *
- * @param  {Array} properties
+ * @param {Array} properties
  */
 function rewriteReady (properties) {
   properties.forEach((property) => {

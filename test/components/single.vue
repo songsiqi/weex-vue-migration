@@ -13,7 +13,7 @@
   </div>
 </template>
 
-<style>
+<style scoped="">
   .thumb {width: 200; height: 200;}
   .title {flex: 1; color: #ff0000; font-size: 48; font-weight: bold; background-color: #eeeeee;}
 </style>

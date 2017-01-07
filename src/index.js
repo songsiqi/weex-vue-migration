@@ -1,6 +1,7 @@
 const parse5 = require('parse5')
 const block = require('./block')
 const templateRewriter = require('./template-rewriter')
+const styleRewriter = require('./style-rewriter')
 const scriptRewriter = require('./script-rewriter')
 const { ELEMENT_PATH } = require('./util')
 
@@ -20,7 +21,7 @@ function transform (weexCode, isEntry) {
     }
     doc = parse5.parseFragment(doc, parserOptions)
   }
-  const { template, script, data, elements } = block(doc)
+  const { template, style, script, data, elements } = block(doc)
 
   let deps = []
   const elementList = []
@@ -28,6 +29,11 @@ function transform (weexCode, isEntry) {
   /* istanbul ignore else */
   if (template) {
     templateRewriter.rewrite(template.content, deps)
+  }
+
+  /* istanbul ignore else */
+  if (style) {
+    styleRewriter.rewrite(style)
   }
 
   if (elements && elements.length) {
