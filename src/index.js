@@ -56,7 +56,9 @@ function transform (weexCode, isEntry) {
     script.childNodes[0].value = scriptResult.code
   }
 
-  const vueCode = parse5.serialize(doc)
+  let vueCode = parse5.serialize(doc)
+  // FIXME: do not escape `&&`` in template
+  vueCode = vueCode.replace(/&amp;/g, '&')
   return {
     content: vueCode,
     elements: elementList

@@ -73,12 +73,14 @@ describe('template', () => {
         <div>
           <div if="{{!exp1}}"></div>
           <div if="exp2"></div>
+          <div if="exp3 && exp4"></div>
           <div else></div>
         </div>`
     const expected = `
         <div>
           <div v-if="!exp1"></div>
           <div v-if="exp2"></div>
+          <div v-if="exp3 && exp4"></div>
           <div v-else=""></div>
         </div>`
     assertDomString(fixture, expected)

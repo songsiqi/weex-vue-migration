@@ -43,7 +43,9 @@ module.exports = {
   },
   methods: {
     gotoDetail: function (itemId, $event) {
-      this.$openURL('https://item.taobao.com/item.htm?id=' + itemId);
+      if (itemId && $event) {
+        this.$openURL('https://item.taobao.com/item.htm?id=' + itemId);
+      }
     }
   }
 };</script>

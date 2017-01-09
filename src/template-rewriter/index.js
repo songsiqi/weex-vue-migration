@@ -72,7 +72,9 @@ function rewrite (node, deps = []) {
     rewrite(child, deps)
   })
 
-  const templateContent = parse5.serialize(node)
+  let templateContent = parse5.serialize(node)
+  // FIXME: do not escape `&&`` in template
+  templateContent = templateContent.replace(/&amp;/g, '&')
   return templateContent
 }
 
