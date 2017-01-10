@@ -497,10 +497,10 @@ function rewriteRequire (path) {
       removeRequire()
     }
     else if (value === '@weex-module/dom') {
-      // rewrite `require('@weex-module/dom')` to `weex.require('dom')`
+      // rewrite `require('@weex-module/dom')` to `weex.requireModule('dom')`
       node.callee = t.MemberExpression(
         t.Identifier('weex'),
-        t.Identifier('require')
+        t.Identifier('requireModule')
       )
       node.arguments[0].value = 'dom'
     }

@@ -265,7 +265,7 @@ module.exports = {
     const elements = [{ name: 'item-e' }]
     const expected = `
 var a = 'xxx';
-var dom = weex.require('dom');
+var dom = weex.requireModule('dom');
 
 require('../polyfill.js');
 

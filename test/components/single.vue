@@ -21,7 +21,7 @@
 
 
 <script>
-var dom = weex.require('dom');
+var dom = weex.requireModule('dom');
 module.exports = {
   components: {
     topBanner: require('./top-banner.vue'),
