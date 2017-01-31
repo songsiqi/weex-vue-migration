@@ -1,7 +1,7 @@
 
   <template>
     <div class="banner">
-      <img src="//gw.alicdn.com/imgextra/i1/2927210366/TB22qwdXhaK.eBjSZFwXXXjsFXa-2927210366.jpg">
+      <image src="//gw.alicdn.com/imgextra/i1/2927210366/TB22qwdXhaK.eBjSZFwXXXjsFXa-2927210366.jpg"></image>
     </div>
   </template>
   <style scoped="">

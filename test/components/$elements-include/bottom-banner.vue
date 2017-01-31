@@ -1,7 +1,7 @@
 
   <template>
     <div class="banner">
-      <img :src="src">
+      <image :src="src"></image>
     </div>
   </template>
   <style scoped="">

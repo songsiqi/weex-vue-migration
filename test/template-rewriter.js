@@ -14,6 +14,14 @@ describe('template', () => {
     assertDomString(fixture, expected)
   })
 
+  it('rewrite `img` tag', () => {
+    const fixture1 = '<img>'
+    const fixture2 = '<img />'
+    const expected = '<image></image>'
+    assertDomString(fixture1, expected)
+    assertDomString(fixture2, expected)
+  })
+
   it('rewrite text node', () => {
     const fixture = `
         <text>
@@ -127,7 +135,7 @@ describe('template', () => {
         </div>`
     const expected = `
         <div>
-          <img :src="imgSrc">
+          <image :src="imgSrc"></image>
           <text value="aa"></text>
           <text :value="'a' + (b[c.d][0]?'a':'b') + ' c'"></text>
         </div>`

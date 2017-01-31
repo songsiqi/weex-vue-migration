@@ -215,6 +215,7 @@ function rewriteDataConfig (properties, dataConfig, isEntry) {
   // Find `data: function () { return { ... } }` and insert dataConfig
   if (isEntry) {
     properties.forEach((property) => {
+      /* istanbul ignore else */
       if (property.type === 'ObjectProperty' &&
         property.key.name === 'data' &&
         property.value.type === 'FunctionExpression' &&

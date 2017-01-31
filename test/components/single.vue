@@ -5,7 +5,7 @@
       <text>{{title}}</text>
     </div>
     <div v-for="item in itemList" @click="gotoDetail(item.itemId, $event)">
-      <img class="thumb" :src="item.pictureUrl">
+      <image class="thumb" :src="item.pictureUrl"></image>
       <text class="title">{{item.title}}</text>
     </div>
     <wxc-button></wxc-button>

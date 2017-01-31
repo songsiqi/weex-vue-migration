@@ -19,6 +19,20 @@ function rewriteContentTag (node) {
 }
 
 /**
+ * Rewrite `<img>` tag
+ *
+ * Weex:
+ *  <img> or <img />
+ * Vue:
+ *  <image></image>
+ *
+ * @param {Node} node
+ */
+function rewriteImgTag (node) {
+  node.nodeName = node.tagName = 'image'
+}
+
+/**
  * Rewrite text node, delete extra spaces and breaks
  *
  * Weex:
@@ -287,6 +301,7 @@ function rewriteAttr (attrs, i) {
 
 module.exports = {
   rewriteContentTag,
+  rewriteImgTag,
   rewriteTextNode,
   rewriteId,
   rewriteClass,

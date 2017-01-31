@@ -27,6 +27,9 @@ function rewrite (node, deps = []) {
     case 'content':
       rewriter.rewriteContentTag(node)
       break
+    case 'img':
+      rewriter.rewriteImgTag(node)
+      break
     case 'text':
       rewriter.rewriteTextNode(node)
       break
