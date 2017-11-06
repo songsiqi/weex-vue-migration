@@ -251,6 +251,7 @@ module.exports = {
     const fixture = `
 var a = 'xxx';
 var dom = require('@weex-module/dom');
+var modal = require('@weex-module/modal');
 var itemA = require('path/to/item-a.we');
 require('path/to/item-b.we');
 require('../polyfill.js');
@@ -266,6 +267,7 @@ module.exports = {
     const expected = `
 var a = 'xxx';
 var dom = weex.requireModule('dom');
+var modal = weex.requireModule('modal');
 
 require('../polyfill.js');
 

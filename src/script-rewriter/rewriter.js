@@ -497,13 +497,16 @@ function rewriteRequire (path) {
     else if (value === 'weex-components') {
       removeRequire()
     }
-    else if (value === '@weex-module/dom') {
-      // rewrite `require('@weex-module/dom')` to `weex.requireModule('dom')`
-      node.callee = t.MemberExpression(
-        t.Identifier('weex'),
-        t.Identifier('requireModule')
-      )
-      node.arguments[0].value = 'dom'
+    else if (value.indexOf('@weex-module/') === 0) {
+      // rewrite `require('@weex-module/xxx')` to `weex.requireModule('xxx')`
+      const moduleName = value.match(/@weex-module\/(.*)/)[1]
+      if (moduleName) {
+        node.callee = t.MemberExpression(
+          t.Identifier('weex'),
+          t.Identifier('requireModule')
+        )
+        node.arguments[0].value = moduleName
+      }
     }
   }
 
